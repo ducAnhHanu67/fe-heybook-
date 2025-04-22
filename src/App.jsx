@@ -1,17 +1,31 @@
-import { Button } from '@/components/ui/button'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+
+import AuthPage from './pages/Auth/AuthPage'
+import Dashboard from './pages/Dashboard/Dashboard'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from './redux/userSlice'
+
+// https://www.robinwieruch.de/react-router-private-routes
+// https://reactrouter.com/api/components/Outlet#outlet
+const ProtectedRoute = ({ user }) => {
+  if (!user) return <Navigate to="/login" replace={true} />
+  return <Outlet />
+}
 
 function App() {
+  const currentUser = useSelector(selectCurrentUser)
+
   return (
-    <>
-      <h1 className="text-center text-3xl font-bold text-blue-600">
-        Hello world!
-      </h1>
-      <div className="mt-4 flex justify-center">
-        <Button type="submit" className="cursor-pointer">
-          Click me!
-        </Button>
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/login" />} />
+
+      <Route element={<ProtectedRoute user={currentUser} />}>
+        <Route path="/dashboard/*" element={<Dashboard />} replace={true} />
+      </Route>
+
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/register" element={<AuthPage />} />
+    </Routes>
   )
 }
 

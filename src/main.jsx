@@ -1,10 +1,30 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
+import { BrowserRouter } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
+
+import { Provider } from 'react-redux'
+import { store } from './redux/store'
+
+import { PersistGate } from 'redux-persist/integration/react'
+import { persistStore } from 'redux-persist'
+const persistor = persistStore(store)
+
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
+  <Provider store={store}>
+    <PersistGate persistor={persistor}>
+      <BrowserRouter
+        basename="/"
+        future={{
+          v7_startTransition: false,
+          v7_relativeSplatPath: false
+        }}
+      >
+        <App />
+        <ToastContainer position="bottom-right" theme="colored" />
+      </BrowserRouter>
+    </PersistGate>
+  </Provider>
 )
