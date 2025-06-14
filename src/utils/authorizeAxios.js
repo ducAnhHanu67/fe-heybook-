@@ -61,7 +61,7 @@ authorizedAxiosInstance.interceptors.response.use(
     /** Quan trọng: Xử lý Refresh Token tự động */
     // Trường hợp 1: Nếu như nhận mã 401 từ BE, thì gọi api đăng xuất luôn
     if (error.response?.status === 401) {
-      axiosReduxStore.dispatch(logoutUserAPI(false))
+      axiosReduxStore.dispatch(logoutUserAPI())
     }
 
     // Trường hợp 2: Nếu như nhận mã 410 từ BE, thì sẽ gọi api refresh token để làm mới lại accessToken
@@ -83,7 +83,7 @@ authorizedAxiosInstance.interceptors.response.use(
           })
           .catch((_error) => {
             // Nếu nhận bất kỳ lỗi nào từ api refresh token thì logout
-            axiosReduxStore.dispatch(logoutUserAPI(false))
+            axiosReduxStore.dispatch(logoutUserAPI())
             return Promise.reject(_error)
           })
           .finally(() => {

@@ -13,13 +13,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useForm } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
-import { categorySchema } from '@/utils/validatiors'
+import { BookGenreSchema } from '@/utils/validatiors'
 import FieldAlertError from '@/components/Form/FieldAlertError'
-import { updateCategoryAPI } from '@/apis'
+import { updateBookGenreAPI } from '@/apis'
 import { toast } from 'react-toastify'
 import { Pencil } from 'lucide-react'
 
-export function UpdateDialog({ category, getCategories }) {
+export default function UpdateDialog({ bookGenre, fetchData }) {
   const [open, setOpen] = useState(false)
   const {
     register,
@@ -27,16 +27,16 @@ export function UpdateDialog({ category, getCategories }) {
     reset,
     formState: { errors }
   } = useForm({
-    resolver: joiResolver(categorySchema)
+    resolver: joiResolver(BookGenreSchema)
   })
 
-  const updateCategory = (data) => {
+  const updateBookGenre = (data) => {
     const { name } = data
-    updateCategoryAPI(category.id, { name })
+    updateBookGenreAPI(bookGenre.id, { name })
       .then((res) => {
         if (!res.error) {
-          toast.success('Sửa thông tin danh mục thành công!')
-          getCategories()
+          toast.success('Sửa thông tin thể loại thành công!')
+          fetchData()
           reset()
           setOpen(false)
         }
@@ -48,13 +48,8 @@ export function UpdateDialog({ category, getCategories }) {
 
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen)
-    if (isOpen) {
-      // Cập nhật URL
-      window.history.pushState({}, '', `/dashboard/categories/${category.id}`)
-    } else {
-      // Reset URL về mặc định
-      window.history.pushState({}, '', '/dashboard/categories')
-      reset({ name: category.name })
+    if (!isOpen) {
+      reset({ name: bookGenre.name })
     }
   }
 
@@ -67,17 +62,17 @@ export function UpdateDialog({ category, getCategories }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Sửa danh mục</DialogTitle>
+          <DialogTitle>Sửa thể loại</DialogTitle>
           <DialogDescription>
-            Thay đổi thông tin danh mục bạn muốn sửa.
+            Thay đổi thông tin thể loại bạn muốn sửa.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(updateCategory)}>
+        <form onSubmit={handleSubmit(updateBookGenre)}>
           <div className="flex w-full flex-col gap-3 py-3">
             <div className="flex w-full flex-col gap-1">
               <Label className="mb-1 pl-[3px] font-medium" htmlFor="name">
-                Tên danh mục
+                Tên thể loại
               </Label>
               <Input
                 className="z-1 h-10 w-full bg-white"
@@ -86,7 +81,7 @@ export function UpdateDialog({ category, getCategories }) {
                 placeholder="VD: Bút bi"
                 error={!!errors['name']}
                 {...register('name')}
-                defaultValue={category.name}
+                defaultValue={bookGenre.name}
               />
               <FieldAlertError errors={errors} fieldName={'name'} />
             </div>

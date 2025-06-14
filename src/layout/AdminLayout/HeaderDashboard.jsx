@@ -39,7 +39,7 @@ export default function HeaderDashboard() {
           <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
           <Input
             type="search"
-            placeholder="Search..."
+            placeholder="Tìm kiếm..."
             className="bg-background w-full rounded-md border pl-8 md:w-[200px] lg:w-[300px]"
           />
         </div>

@@ -18,36 +18,36 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 import { Input } from '@/components/ui/input'
-import { getCategoriesAPI } from '@/apis'
+import { getBookGenresAPI } from '@/apis'
 import { CreateDialog } from './Dialog/CreateDialog'
-import { ReadDialog } from './Dialog/ReadDialog'
-import { UpdateDialog } from './Dialog/UpdateDialog'
-import { DeleteDialog } from './Dialog/DeleteDialog'
+import ReadDialog from './Dialog/ReadDialog'
+import UpdateDialog from './Dialog/UpdateDialog'
+import DeleteDialog from './Dialog/DeleteDialog'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@/utils/constant'
 import { Loader2, Search } from 'lucide-react'
 
-export default function Categories() {
+export default function BookGenres() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  const [categories, setCategories] = useState({ data: [], count: 0 })
+  const [bookGenres, setBookGenres] = useState({ data: [], count: 0 })
   const [loading, isLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
 
-  const totalPages = Math.ceil(categories.count / DEFAULT_ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(bookGenres.count / DEFAULT_ITEMS_PER_PAGE)
   const query = new URLSearchParams(location.search)
   const currentPage = query.get('page') || DEFAULT_PAGE
 
-  const fetchCategories = async (page = currentPage, search = searchTerm) => {
+  const fetchBookGenres = async (page = currentPage, search = searchTerm) => {
     const searchPath =
       search === '' ? `?page=${page}` : `?page=${page}&search=${search}`
-    const data = await getCategoriesAPI(searchPath)
-    setCategories(data)
+    const data = await getBookGenresAPI(searchPath)
+    setBookGenres(data)
     isLoading(false)
   }
 
   useEffect(() => {
-    fetchCategories()
+    fetchBookGenres()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, searchTerm])
 
@@ -60,7 +60,15 @@ export default function Categories() {
     if (currentPage !== '1') {
       navigate(`${location.pathname}?page=1`)
     } else {
-      fetchCategories()
+      fetchBookGenres()
+    }
+  }
+
+  const fetchDataAfterDelete = () => {
+    if (bookGenres.data.length === 1) {
+      navigate(`${location.pathname}?page=1`)
+    } else {
+      fetchBookGenres()
     }
   }
 
@@ -68,7 +76,7 @@ export default function Categories() {
     <div className="mt-1 flex flex-1 flex-col">
       <div className="flex-1 rounded-2xl border border-gray-300 bg-white p-3 pb-2 dark:border-gray-800 dark:bg-white/[0.03]">
         <div className="mt-2 flex items-center justify-center">
-          <h1 className="text-2xl font-semibold">QUẢN LÝ DANH MỤC</h1>
+          <h1 className="text-2xl font-semibold">QUẢN LÝ THỂ LOẠI SÁCH</h1>
         </div>
 
         {loading ? (
@@ -91,7 +99,7 @@ export default function Categories() {
                 />
               </div>
               {/* Create */}
-              <CreateDialog getCategories={fetchDataAfterCreateOrUpdate} />
+              <CreateDialog fetchData={fetchDataAfterCreateOrUpdate} />
             </div>
 
             {/* Categories */}
@@ -100,7 +108,7 @@ export default function Categories() {
                 <TableHeader>
                   <TableRow className="bg-gray-200 hover:bg-gray-200">
                     <TableHead className="rounded-tl-md">STT</TableHead>
-                    <TableHead>Tên danh mục</TableHead>
+                    <TableHead>Tên thể loại</TableHead>
                     <TableHead className="w-[45px]">Xem</TableHead>
                     <TableHead className="w-[45px]">Sửa</TableHead>
                     <TableHead className="w-[50px] rounded-tr-md">
@@ -109,33 +117,33 @@ export default function Categories() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {categories.data.map((category, index) => (
-                    <TableRow key={category.id}>
+                  {bookGenres.data.map((item, index) => (
+                    <TableRow key={item.id}>
                       <TableCell className="px-3 font-medium">
                         {(Number(currentPage) - 1) * DEFAULT_ITEMS_PER_PAGE +
                           index +
                           1}
                       </TableCell>
-                      <TableCell>{category.name}</TableCell>
+                      <TableCell>{item.name}</TableCell>
 
                       {/* Read */}
                       <TableCell>
-                        <ReadDialog category={category} />
+                        <ReadDialog bookGenre={item} />
                       </TableCell>
 
                       {/* Update */}
                       <TableCell>
                         <UpdateDialog
-                          category={category}
-                          getCategories={fetchDataAfterCreateOrUpdate}
+                          bookGenre={item}
+                          fetchData={fetchDataAfterCreateOrUpdate}
                         />
                       </TableCell>
 
                       {/* Delete */}
                       <TableCell>
                         <DeleteDialog
-                          categoryId={category.id}
-                          getCategories={fetchCategories}
+                          bookGenreId={item.id}
+                          fetchData={fetchDataAfterDelete}
                         />
                       </TableCell>
                     </TableRow>
@@ -145,7 +153,7 @@ export default function Categories() {
             </div>
 
             {/* Pagination */}
-            {categories.count > 11 && (
+            {bookGenres.count > 10 && (
               <Pagination className="mt-5">
                 <PaginationContent>
                   {/* Pagination Previous */}

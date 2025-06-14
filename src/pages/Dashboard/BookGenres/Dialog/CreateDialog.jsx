@@ -9,75 +9,68 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
-import { categorySchema } from '@/utils/validatiors'
+import { BookGenreSchema } from '@/utils/validatiors'
 import FieldAlertError from '@/components/Form/FieldAlertError'
-import { updateCategoryAPI } from '@/apis'
+import { createBookGenreAPI } from '@/apis'
 import { toast } from 'react-toastify'
-import { Pencil } from 'lucide-react'
 
-export function UpdateDialog({ category, getCategories }) {
+export function CreateDialog({ fetchData }) {
   const [open, setOpen] = useState(false)
   const {
     register,
     handleSubmit,
     reset,
+    clearErrors,
     formState: { errors }
   } = useForm({
-    resolver: joiResolver(categorySchema)
+    resolver: joiResolver(BookGenreSchema)
   })
 
-  const updateCategory = (data) => {
+  const createBookGenres = (data) => {
     const { name } = data
-    updateCategoryAPI(category.id, { name })
+    createBookGenreAPI({ name })
       .then((res) => {
         if (!res.error) {
-          toast.success('Sửa thông tin danh mục thành công!')
-          getCategories()
+          toast.success('Thêm thể loại sách thành công!')
+          fetchData()
           reset()
           setOpen(false)
         }
       })
-      .catch((err) => {
-        toast.error(err.response?.data?.message || 'Có lỗi xảy ra!')
-      })
+      .catch((err) => toast.error(err.response?.data?.message || 'Có lỗi xảy ra!'))
   }
 
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen)
-    if (isOpen) {
-      // Cập nhật URL
-      window.history.pushState({}, '', `/dashboard/categories/${category.id}`)
-    } else {
-      // Reset URL về mặc định
-      window.history.pushState({}, '', '/dashboard/categories')
-      reset({ name: category.name })
+    if (!isOpen) {
+      clearErrors()
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <button className="dark:hover:text-error-500 mr-2 cursor-pointer p-[1px] font-medium text-gray-600 underline hover:text-blue-600 dark:text-gray-400">
-          <Pencil size={18} />
-        </button>
+        <Button className="ml-auto gap-1 pl-10">
+          <Plus />
+          Thêm thể loại
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Sửa danh mục</DialogTitle>
-          <DialogDescription>
-            Thay đổi thông tin danh mục bạn muốn sửa.
-          </DialogDescription>
+          <DialogTitle>Thêm thể loại</DialogTitle>
+          <DialogDescription>Nhập tên thể loại bạn muốn thêm vào danh sách.</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(updateCategory)}>
+        <form onSubmit={handleSubmit(createBookGenres)}>
           <div className="flex w-full flex-col gap-3 py-3">
             <div className="flex w-full flex-col gap-1">
               <Label className="mb-1 pl-[3px] font-medium" htmlFor="name">
-                Tên danh mục
+                Tên thể loại
               </Label>
               <Input
                 className="z-1 h-10 w-full bg-white"
@@ -86,7 +79,6 @@ export function UpdateDialog({ category, getCategories }) {
                 placeholder="VD: Bút bi"
                 error={!!errors['name']}
                 {...register('name')}
-                defaultValue={category.name}
               />
               <FieldAlertError errors={errors} fieldName={'name'} />
             </div>

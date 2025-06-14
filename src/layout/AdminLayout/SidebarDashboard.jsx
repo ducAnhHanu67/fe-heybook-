@@ -1,5 +1,4 @@
-import { Home, BarChartIcon as ChartBarStacked, BookText } from 'lucide-react'
-
+import { Home, BookText, ChartBarStacked, BookCopy, Package, TicketPercent, Truck, Users } from 'lucide-react'
 import {
   Sidebar,
   SidebarHeader,
@@ -26,6 +25,31 @@ const items = [
     title: 'Quản lý danh mục',
     url: '/dashboard/categories',
     icon: ChartBarStacked
+  },
+  {
+    title: 'Quản lý thể loại sách',
+    url: '/dashboard/book-genres',
+    icon: BookCopy
+  },
+  {
+    title: 'Quản lý sản phẩm',
+    url: '/dashboard/products',
+    icon: Package
+  },
+  {
+    title: 'Quản lý mã giảm giá',
+    url: '/dashboard/discounts',
+    icon: TicketPercent
+  },
+  {
+    title: 'Quản lý đơn hàng',
+    url: '/dashboard/discounts',
+    icon: Truck
+  },
+  {
+    title: 'Quản lý người dùng',
+    url: '/dashboard/discounts',
+    icon: Users
   }
 ]
 
@@ -35,12 +59,7 @@ export default function SidebarDashboard() {
 
   return (
     <Sidebar collapsible="icon" className="border-gray-300 bg-white">
-      <SidebarHeader
-        className={cn(
-          'items-center bg-white',
-          isCollapsed ? 'h-11 justify-center' : 'pl-3'
-        )}
-      >
+      <SidebarHeader className={cn('items-center bg-white', isCollapsed ? 'h-11 justify-center' : 'pl-3')}>
         <div
           className={cn(
             'bg-sidebar-primary text-sidebar-primary-foreground flex items-center justify-center rounded-lg',
@@ -49,12 +68,7 @@ export default function SidebarDashboard() {
         >
           <BookText className={isCollapsed ? 'size-4' : 'size-5'} />
         </div>
-        <div
-          className={cn(
-            'grid text-left text-sm leading-tight',
-            isCollapsed && 'hidden'
-          )}
-        >
+        <div className={cn('grid text-left text-sm leading-tight', isCollapsed && 'hidden')}>
           <button className="truncate text-xl font-semibold">HeyBook</button>
           <span className="truncate text-xs">Trang quản lý</span>
         </div>
@@ -66,15 +80,9 @@ export default function SidebarDashboard() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    className="h-12 gap-3 text-base font-medium"
-                  >
+                  <SidebarMenuButton asChild className="h-12 gap-3 text-base font-medium">
                     <Link to={item.url}>
-                      <item.icon
-                        className="!size-5 h-10 w-10"
-                        strokeWidth="1.8"
-                      />
+                      <item.icon className="!size-5 h-10 w-10" strokeWidth="1.8" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

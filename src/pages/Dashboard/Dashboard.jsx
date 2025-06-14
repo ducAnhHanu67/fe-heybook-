@@ -3,6 +3,8 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import SidebarDashboard from '@/layout/AdminLayout/SidebarDashboard'
 import HeaderDashboard from '@/layout/AdminLayout/HeaderDashboard'
 import Categories from './Categories/Categories'
+import BookGenres from './BookGenres/BookGenres'
+import Products from './Product/Products'
 
 export default function Dashboard() {
   return (
@@ -19,6 +21,8 @@ export default function Dashboard() {
             {/* Routes */}
             <Routes>
               <Route path="/categories/*" element={<Categories />} />
+              <Route path="/book-genres/*" element={<BookGenres />} />
+              <Route path="/products/*" element={<Products />} />
             </Routes>
           </div>
         </div>

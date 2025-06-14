@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
+import { Plus } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
 import { categorySchema } from '@/utils/validatiors'
@@ -33,11 +34,13 @@ export function CreateDialog({ getCategories }) {
   const createCategory = (data) => {
     const { name } = data
     createCategoryAPI({ name })
-      .then(() => {
-        toast.success('Thêm danh mục thành công!')
-        getCategories('1')
-        reset()
-        setOpen(false)
+      .then((res) => {
+        if (!res.error) {
+          toast.success('Thêm danh mục thành công!')
+          getCategories()
+          reset()
+          setOpen(false)
+        }
       })
       .catch((err) =>
         toast.error(err.response?.data?.message || 'Có lỗi xảy ra!')
@@ -54,7 +57,10 @@ export function CreateDialog({ getCategories }) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="ml-auto">Thêm danh mục</Button>
+        <Button className="ml-auto gap-1 pl-10">
+          <Plus />
+          Thêm danh mục
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
