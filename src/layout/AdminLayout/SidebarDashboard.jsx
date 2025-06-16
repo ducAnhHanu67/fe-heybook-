@@ -27,28 +27,28 @@ const items = [
     icon: ChartBarStacked
   },
   {
-    title: 'Quản lý thể loại sách',
+    title: 'Quản lý thể loại sách',
     url: '/dashboard/book-genres',
     icon: BookCopy
   },
   {
-    title: 'Quản lý sản phẩm',
+    title: 'Quản lý sản phẩm',
     url: '/dashboard/products',
     icon: Package
   },
   {
-    title: 'Quản lý mã giảm giá',
+    title: 'Quản lý mã giảm giá',
     url: '/dashboard/discounts',
     icon: TicketPercent
   },
   {
-    title: 'Quản lý đơn hàng',
-    url: '/dashboard/discounts',
+    title: 'Quản lý đơn hàng',
+    url: '/dashboard/orders',
     icon: Truck
   },
   {
-    title: 'Quản lý người dùng',
-    url: '/dashboard/discounts',
+    title: 'Quản lý người dùng',
+    url: '/dashboard/users',
     icon: Users
   }
 ]

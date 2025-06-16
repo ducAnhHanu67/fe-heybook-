@@ -122,3 +122,29 @@ export const deleteProductAPI = async (productId) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/products/${productId}`)
   return response.data
 }
+
+// *** Users Management ***
+export const getUsersAPI = async (searchPath = '') => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/admin/users${searchPath}`)
+  return response.data
+}
+
+export const getUserByIdAPI = async (userId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/admin/users/${userId}`)
+  return response.data
+}
+
+export const updateUserAPI = async (userId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/admin/users/${userId}`, data)
+  return response.data
+}
+
+export const deleteUserAPI = async (userId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/admin/users/${userId}`)
+  return response.data
+}
+
+export const createUserAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/admin/users`, data)
+  return response.data
+}

@@ -1,0 +1,218 @@
+import { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Edit } from 'lucide-react'
+import { useForm, Controller } from 'react-hook-form'
+import { joiResolver } from '@hookform/resolvers/joi'
+import Joi from 'joi'
+import FieldAlertError from '@/components/Form/FieldAlertError'
+import { updateUserAPI } from '@/apis'
+import { toast } from 'react-toastify'
+
+const updateUserSchema = Joi.object({
+  userName: Joi.string().required().messages({
+    'string.empty': 'Tên người dùng không được để trống',
+    'any.required': 'Tên người dùng là bắt buộc'
+  }),
+  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
+    'string.empty': 'Email không được để trống',
+    'string.email': 'Email không hợp lệ',
+    'any.required': 'Email là bắt buộc'
+  }),
+  password: Joi.string().allow('').min(6).messages({
+    'string.min': 'Mật khẩu phải có ít nhất 6 ký tự'
+  }),
+  role: Joi.string().valid('ADMIN', 'CLIENT').required().messages({
+    'any.only': 'Vai trò phải là ADMIN hoặc CLIENT',
+    'any.required': 'Vai trò là bắt buộc'
+  }),
+  isActive: Joi.boolean().required()
+})
+
+export function UpdateDialog({ user, getUsers }) {
+  const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  
+  const {
+    register,
+    handleSubmit,
+    reset,
+    control,
+    clearErrors,
+    formState: { errors }
+  } = useForm({
+    resolver: joiResolver(updateUserSchema),
+    defaultValues: {
+      userName: user.userName,
+      email: user.email,
+      password: '',
+      role: user.role,
+      isActive: user.isActive
+    }
+  })
+
+  const updateUser = async (data) => {
+    setIsLoading(true)
+    try {
+      // Loại bỏ password nếu trống
+      const updateData = { ...data }
+      if (!updateData.password || updateData.password.trim() === '') {
+        delete updateData.password
+      }
+      
+      const res = await updateUserAPI(user.id, updateData)
+      if (!res.error) {
+        toast.success('Cập nhật người dùng thành công!')
+        getUsers()
+        setOpen(false)
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Có lỗi xảy ra!')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleOpenChange = (isOpen) => {
+    if (!isOpen) {
+      reset({
+        userName: user.userName,
+        email: user.email,
+        password: '',
+        role: user.role,
+        isActive: user.isActive
+      })
+      clearErrors()
+    }
+    setOpen(isOpen)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Edit className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="overflow-y-auto sm:max-w-[750px]">
+        <DialogHeader>
+          <DialogTitle>Cập nhật thông tin người dùng</DialogTitle>
+          <DialogDescription>
+            Chỉnh sửa thông tin người dùng. Nhấn lưu khi hoàn tất.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(updateUser)}>
+          <div className="grid gap-4 py-4">
+            {/* Tên người dùng */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="userName">
+                Tên người dùng<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="userName"
+                placeholder="Nhập tên người dùng"
+                {...register('userName')}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="userName" />
+            </div>
+
+            {/* Email */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email">
+                Email<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="Nhập email"
+                {...register('email')}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="email" />
+            </div>
+
+            {/* Mật khẩu */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="password">
+                Mật khẩu mới (để trống nếu không đổi)
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Nhập mật khẩu mới (tùy chọn)"
+                {...register('password')}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="password" />
+            </div>
+
+            {/* Vai trò */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="role">
+                Vai trò<span className="text-red-500">*</span>
+              </Label>
+              <Controller
+                name="role"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="relative z-[1] bg-white">
+                      <SelectValue placeholder="Chọn vai trò" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="CLIENT">Khách hàng</SelectItem>
+                      <SelectItem value="ADMIN">Quản trị viên</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FieldAlertError errors={errors} fieldName="role" />
+            </div>
+
+            {/* Trạng thái hoạt động */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="isActive">
+                Trạng thái hoạt động
+              </Label>
+              <Controller
+                name="isActive"
+                control={control}
+                render={({ field }) => (
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="isActive"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <Label htmlFor="isActive">
+                      {field.value ? 'Hoạt động' : 'Không hoạt động'}
+                    </Label>
+                  </div>
+                )}
+              />
+              <FieldAlertError errors={errors} fieldName="isActive" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Đang cập nhật...' : 'Lưu thay đổi'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  )
+}
