@@ -25,9 +25,7 @@ function App() {
   return (
     <Routes>
       {/* ✅ Trang / là Client luôn */}
-      <Route element={<ProtectedRoute />}>
-        <Route path="/*" element={<Client />} />
-      </Route>
+      <Route path="/*" element={<Client />} />
 
       {/* ✅ Dashboard chỉ dành cho admin */}
       <Route element={<ProtectedRoute requirePermission={permissions.VIEW_ADMIN} />}>
