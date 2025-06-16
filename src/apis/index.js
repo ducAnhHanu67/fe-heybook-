@@ -28,6 +28,17 @@ export const refreshTokenAPI = async () => {
   return response.data
 }
 
+// Google login
+export const googleLoginAPI = async (googleToken) => {
+  const response = await axios.post(`${API_ROOT}/v1/users/google-login`, {
+    googleToken
+  })
+  toast.success('Đăng nhập với Google thành công!', {
+    theme: 'colored'
+  })
+  return response.data
+}
+
 // *** Categories ***
 export const getCategoriesAPI = async (searchPath) => {
   if (!searchPath) searchPath = ''
