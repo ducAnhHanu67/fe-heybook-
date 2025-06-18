@@ -35,22 +35,20 @@ export default function Profile() {
     return (
       <div className="container mx-auto px-4 py-8">
         <Alert>
-          <AlertDescription>
-            Vui lòng đăng nhập để xem thông tin cá nhân.
-          </AlertDescription>
+          <AlertDescription>Vui lòng đăng nhập để xem thông tin cá nhân.</AlertDescription>
         </Alert>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto max-w-6xl px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Tài khoản của tôi</h1>
-        <p className="text-gray-600 mt-2">Quản lý thông tin tài khoản và đơn hàng của bạn</p>
+        <p className="mt-2 text-gray-600">Quản lý thông tin tài khoản và đơn hàng của bạn</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
@@ -77,10 +75,8 @@ export default function Profile() {
                     <Link
                       key={item.path}
                       to={item.path}
-                      className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-                        isActive
-                          ? 'bg-red-50 text-red-600 font-medium'
-                          : 'text-gray-700 hover:bg-gray-50'
+                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 transition-colors ${
+                        isActive ? 'bg-red-50 font-medium text-red-600' : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       <Icon className="h-5 w-5" />

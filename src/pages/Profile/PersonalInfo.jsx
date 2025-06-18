@@ -40,12 +40,12 @@ export default function PersonalInfo() {
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target
-    setProfileData(prev => ({
+    setProfileData((prev) => ({
       ...prev,
       [name]: value
     }))
     if (profileErrors[name]) {
-      setProfileErrors(prev => ({
+      setProfileErrors((prev) => ({
         ...prev,
         [name]: ''
       }))
@@ -74,13 +74,13 @@ export default function PersonalInfo() {
 
     try {
       const uploadResult = await uploadToCloudinary(file)
-      setProfileData(prev => ({
+      setProfileData((prev) => ({
         ...prev,
         avatar: uploadResult.url
       }))
 
       if (profileErrors.avatar) {
-        setProfileErrors(prev => ({
+        setProfileErrors((prev) => ({
           ...prev,
           avatar: ''
         }))
@@ -145,9 +145,7 @@ export default function PersonalInfo() {
     <Card>
       <CardHeader>
         <CardTitle>Thông tin cá nhân</CardTitle>
-        <CardDescription>
-          Cập nhật thông tin cá nhân của bạn
-        </CardDescription>
+        <CardDescription>Cập nhật thông tin cá nhân của bạn</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-center space-x-4">
@@ -177,12 +175,8 @@ export default function PersonalInfo() {
                 onChange={handleAvatarChange}
                 className="hidden"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                JPG, PNG tối đa 2MB
-              </p>
-              {profileErrors.avatar && (
-                <p className="text-sm text-red-500 mt-1">{profileErrors.avatar}</p>
-              )}
+              <p className="mt-1 text-sm text-gray-500">JPG, PNG tối đa 2MB</p>
+              {profileErrors.avatar && <p className="mt-1 text-sm text-red-500">{profileErrors.avatar}</p>}
             </div>
           </div>
         </div>
@@ -190,7 +184,7 @@ export default function PersonalInfo() {
         <Separator />
 
         <form onSubmit={handleUpdateProfile} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="userName">Tên đăng nhập *</Label>
               <Input
@@ -200,9 +194,7 @@ export default function PersonalInfo() {
                 onChange={handleProfileChange}
                 placeholder="Nhập tên đăng nhập"
               />
-              {profileErrors.userName && (
-                <p className="text-sm text-red-500">{profileErrors.userName}</p>
-              )}
+              {profileErrors.userName && <p className="text-sm text-red-500">{profileErrors.userName}</p>}
             </div>
 
             <div className="space-y-2">
@@ -215,9 +207,7 @@ export default function PersonalInfo() {
                 onChange={handleProfileChange}
                 placeholder="Nhập email"
               />
-              {profileErrors.email && (
-                <p className="text-sm text-red-500">{profileErrors.email}</p>
-              )}
+              {profileErrors.email && <p className="text-sm text-red-500">{profileErrors.email}</p>}
             </div>
           </div>
 
@@ -233,11 +223,7 @@ export default function PersonalInfo() {
           </div>
 
           <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isUpdatingProfile}
-              className="flex items-center gap-2"
-            >
+            <Button type="submit" disabled={isUpdatingProfile} className="flex items-center gap-2">
               <Save className="h-4 w-4" />
               {isUpdatingProfile ? 'Đang lưu...' : 'Lưu thay đổi'}
             </Button>

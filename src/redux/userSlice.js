@@ -7,62 +7,33 @@ const initialState = {
   currentUser: null
 }
 
-export const loginUserAPI = createAsyncThunk(
-  'user/loginUserAPI',
-  async (data) => {
-    const response = await authorizedAxiosInstance.post(
-      `${API_ROOT}/v1/users/login`,
-      data
-    )
-    return response.data
-  }
-)
+export const loginUserAPI = createAsyncThunk('user/loginUserAPI', async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/login`, data)
+  return response.data
+})
 
-export const logoutUserAPI = createAsyncThunk(
-  'user/logoutUserAPI',
-  async (showSuccessMessage = true) => {
-    const response = await authorizedAxiosInstance.delete(
-      `${API_ROOT}/v1/users/logout`
-    )
-    if (showSuccessMessage) {
-      toast.success('Đăng xuất thành công!')
-    }
-    return response.data
+export const logoutUserAPI = createAsyncThunk('user/logoutUserAPI', async (showSuccessMessage = true) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/logout`)
+  if (showSuccessMessage) {
+    toast.success('Đăng xuất thành công!')
   }
-)
+  return response.data
+})
 
-export const updateUserAPI = createAsyncThunk(
-  'user/updateUserAPI',
-  async (data) => {
-    const response = await authorizedAxiosInstance.put(
-      `${API_ROOT}/v1/users/profile/update`,
-      data
-    )
-    return response.data
-  }
-)
+export const updateUserAPI = createAsyncThunk('user/updateUserAPI', async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/profile/update`, data)
+  return response.data
+})
 
-export const changePasswordAPI = createAsyncThunk(
-  'user/changePasswordAPI',
-  async (data) => {
-    const response = await authorizedAxiosInstance.put(
-      `${API_ROOT}/v1/users/profile/change-password`,
-      data
-    )
-    return response.data
-  }
-)
+export const changePasswordAPI = createAsyncThunk('user/changePasswordAPI', async (data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/profile/change-password`, data)
+  return response.data
+})
 
-export const googleLoginUserAPI = createAsyncThunk(
-  'user/googleLoginUserAPI',
-  async (googleToken) => {
-    const response = await authorizedAxiosInstance.post(
-      `${API_ROOT}/v1/users/google-login`,
-      { googleToken }
-    )
-    return response.data
-  }
-)
+export const googleLoginUserAPI = createAsyncThunk('user/googleLoginUserAPI', async (googleToken) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/google-login`, { googleToken })
+  return response.data
+})
 
 export const userSlice = createSlice({
   name: 'user',
