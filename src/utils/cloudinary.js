@@ -1,4 +1,3 @@
-// Cloudinary upload utility
 export const uploadToCloudinary = async (file) => {
   if (!file) throw new Error('No file provided')
 
