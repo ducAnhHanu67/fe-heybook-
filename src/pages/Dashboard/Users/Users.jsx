@@ -137,7 +137,7 @@ export default function Users() {
                       </TableCell>
                       <TableCell>
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={user.avatar} alt={user.userName} />
+                          <AvatarImage src={user.avatar} alt={user.userName} className="object-cover" />
                           <AvatarFallback>{user.userName?.charAt(0)?.toUpperCase() || 'U'}</AvatarFallback>
                         </Avatar>
                       </TableCell>
