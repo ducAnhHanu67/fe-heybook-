@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
 import {
   Dialog,
   DialogContent,
@@ -10,74 +7,76 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { useForm, Controller } from 'react-hook-form'
+import { joiResolver } from '@hookform/resolvers/joi'
+import Joi from 'joi'
+import FieldAlertError from '@/components/Form/FieldAlertError'
 
-const formSchema = z
-  .object({
-    code: z
-      .string()
-      .min(3, 'Mã giảm giá phải có ít nhất 3 ký tự')
-      .max(50, 'Mã giảm giá không được quá 50 ký tự')
-      .regex(/^[A-Z0-9_]+$/, 'Mã giảm giá chỉ được chứa chữ in hoa, số và dấu gạch dưới'),
-    name: z.string().min(1, 'Tên mã giảm giá là bắt buộc').max(255, 'Tên không được quá 255 ký tự'),
-    description: z.string().optional(),
-    type: z.enum(['PERCENTAGE', 'FIXED_AMOUNT'], {
-      required_error: 'Vui lòng chọn loại giảm giá'
-    }),
-    value: z.number().min(0, 'Giá trị phải lớn hơn 0').max(100, 'Giá trị phần trăm không được quá 100%'),
-    minOrderAmount: z.number().min(0, 'Số tiền đơn hàng tối thiểu phải lớn hơn hoặc bằng 0').optional(),
-    maxDiscountAmount: z.number().min(0, 'Số tiền giảm tối đa phải lớn hơn hoặc bằng 0').optional(),
-    usageLimit: z.number().min(1, 'Giới hạn sử dụng phải lớn hơn 0'),
-    startDate: z.string({
-      required_error: 'Ngày bắt đầu là bắt buộc'
-    }),
-    endDate: z.string({
-      required_error: 'Ngày kết thúc là bắt buộc'
-    }),
-    isActive: z.boolean().default(true)
-  })
-  .refine(
-    (data) => {
-      if (data.type === 'PERCENTAGE' && data.value > 100) {
-        return false
-      }
-      return true
-    },
-    {
-      message: 'Giá trị phần trăm không được vượt quá 100%',
-      path: ['value']
-    }
-  )
-  .refine(
-    (data) => {
-      const startDate = new Date(data.startDate)
-      const endDate = new Date(data.endDate)
-      return endDate > startDate
-    },
-    {
-      message: 'Ngày kết thúc phải sau ngày bắt đầu',
-      path: ['endDate']
-    }
-  )
+const discountSchema = Joi.object({
+  code: Joi.string().required().messages({
+    'string.empty': 'Mã giảm giá không được để trống',
+    'any.required': 'Mã giảm giá là bắt buộc'
+  }),
+  name: Joi.string().required().messages({
+    'string.empty': 'Tên mã giảm giá không được để trống',
+    'any.required': 'Tên mã giảm giá là bắt buộc'
+  }),
+  description: Joi.string().allow('').optional(),
+  type: Joi.string().valid('PERCENTAGE', 'FIXED_AMOUNT').required().messages({
+    'any.only': 'Loại giảm giá phải là Phần trăm hoặc Số tiền cố định',
+    'any.required': 'Loại giảm giá là bắt buộc'
+  }),
+  value: Joi.number().min(0).required().messages({
+    'number.base': 'Giá trị phải là số',
+    'number.min': 'Giá trị phải lớn hơn hoặc bằng 0',
+    'any.required': 'Giá trị là bắt buộc'
+  }),
+  minOrderAmount: Joi.number().min(0).required().messages({
+    'number.base': 'Số tiền tối thiểu phải là số',
+    'number.min': 'Số tiền tối thiểu phải lớn hơn hoặc bằng 0',
+    'any.required': 'Số tiền tối thiểu là bắt buộc'
+  }),
+  maxDiscountAmount: Joi.number().min(0).optional().allow(null).messages({
+    'number.base': 'Số tiền giảm tối đa phải là số',
+    'number.min': 'Số tiền giảm tối đa phải lớn hơn hoặc bằng 0'
+  }),
+  usageLimit: Joi.number().integer().min(1).required().messages({
+    'number.base': 'Giới hạn sử dụng phải là số',
+    'number.integer': 'Giới hạn sử dụng phải là số nguyên',
+    'number.min': 'Giới hạn sử dụng phải lớn hơn 0',
+    'any.required': 'Giới hạn sử dụng là bắt buộc'
+  }),
+  startDate: Joi.string().required().messages({
+    'string.empty': 'Ngày bắt đầu không được để trống',
+    'any.required': 'Ngày bắt đầu là bắt buộc'
+  }),
+  endDate: Joi.string().required().messages({
+    'string.empty': 'Ngày kết thúc không được để trống',
+    'any.required': 'Ngày kết thúc là bắt buộc'
+  }),
+  isActive: Joi.boolean().required()
+})
 
 export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }) {
   const [loading, setLoading] = useState(false)
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    clearErrors,
+    control,
+    watch,
+    setValue
+  } = useForm({
+    resolver: joiResolver(discountSchema),
     defaultValues: {
       code: '',
       name: '',
@@ -93,41 +92,35 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
     }
   })
 
-  const watchType = form.watch('type')
+  const watchType = watch('type')
 
-  // Update form when discount changes
+  // Load discount data when dialog opens
   useEffect(() => {
     if (discount && open) {
-      form.reset({
-        code: discount.code || '',
-        name: discount.name || '',
-        description: discount.description || '',
-        type: discount.type || 'PERCENTAGE',
-        value: discount.value || 0,
-        minOrderAmount: discount.minOrderAmount || 0,
-        maxDiscountAmount: discount.maxDiscountAmount || 0,
-        usageLimit: discount.usageLimit || 1,
-        startDate: discount.startDate
-          ? discount.startDate.includes('T')
-            ? discount.startDate.slice(0, 16)
-            : discount.startDate + 'T00:00'
-          : new Date().toISOString().slice(0, 16),
-        endDate: discount.endDate
-          ? discount.endDate.includes('T')
-            ? discount.endDate.slice(0, 16)
-            : discount.endDate + 'T23:59'
-          : new Date().toISOString().slice(0, 16),
-        isActive: discount.isActive ?? true
-      })
+      setValue('code', discount.code || '')
+      setValue('name', discount.name || '')
+      setValue('description', discount.description || '')
+      setValue('type', discount.type || 'PERCENTAGE')
+      setValue('value', discount.value || 0)
+      setValue('minOrderAmount', discount.minOrderAmount || 0)
+      setValue('maxDiscountAmount', discount.maxDiscountAmount || 0)
+      setValue('usageLimit', discount.usageLimit || 1)
+      setValue('startDate', discount.startDate
+        ? (discount.startDate.includes('T') ? discount.startDate.slice(0, 16) : discount.startDate + 'T00:00')
+        : new Date().toISOString().slice(0, 16))
+      setValue('endDate', discount.endDate
+        ? (discount.endDate.includes('T') ? discount.endDate.slice(0, 16) : discount.endDate + 'T23:59')
+        : new Date().toISOString().slice(0, 16))
+      setValue('isActive', discount.isActive ?? true)
     }
-  }, [discount, open, form])
+  }, [discount, open, setValue])
 
   const onSubmit = async () => {
     try {
       setLoading(true)
 
       // TODO: Replace with actual API call
-      // await updateDiscount(discount.id, values)
+      // console.log('Updating discount:', data)
 
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000))
@@ -136,261 +129,244 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
       onSuccess?.()
     } catch {
       // TODO: Handle error properly
-      // showErrorToast('Lỗi khi cập nhật mã giảm giá')
+      // console.error('Error updating discount:', error)
     } finally {
       setLoading(false)
     }
   }
 
+  const handleOpenChange = (isOpen) => {
+    if (!isOpen) {
+      reset()
+      clearErrors()
+    }
+    onOpenChange(isOpen)
+  }
+
   if (!discount) return null
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Cập nhật mã giảm giá</DialogTitle>
+          <DialogTitle>Chỉnh sửa mã giảm giá</DialogTitle>
           <DialogDescription>
-            Chỉnh sửa thông tin mã giảm giá{' '}
-            <span className="font-mono font-semibold text-blue-600">{discount.code}</span>
+            Cập nhật thông tin mã giảm giá. Nhấn lưu khi hoàn tất.
           </DialogDescription>
         </DialogHeader>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Code */}
-              <FormField
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mã giảm giá *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="VD: SUMMER2024"
-                        {...field}
-                        className="font-mono"
-                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-6 py-4">
+            {/* Mã giảm giá */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="code">
+                Mã giảm giá<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="code"
+                placeholder="VD: SUMMER2024"
+                {...register('code')}
+                className="relative z-[1] bg-white font-mono"
+                onChange={(e) => {
+                  const value = e.target.value.toUpperCase()
+                  e.target.value = value
+                  register('code').onChange(e)
+                }}
               />
-
-              {/* Name */}
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tên mã giảm giá *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="VD: Giảm giá mùa hè" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FieldAlertError errors={errors} fieldName="code" />
             </div>
 
-            {/* Description */}
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mô tả</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Mô tả chi tiết về mã giảm giá này..." rows={3} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Tên mã giảm giá */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="name">
+                Tên mã giảm giá<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="name"
+                placeholder="VD: Giảm giá mùa hè"
+                {...register('name')}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="name" />
+            </div>
+
+            {/* Mô tả */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="description">
+                Mô tả
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Mô tả chi tiết về mã giảm giá..."
+                {...register('description')}
+                className="relative z-[1] bg-white min-h-[80px]"
+              />
+              <FieldAlertError errors={errors} fieldName="description" />
+            </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Type */}
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Loại giảm giá *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn loại giảm giá" />
-                        </SelectTrigger>
-                      </FormControl>
+              {/* Loại giảm giá */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="type">
+                  Loại giảm giá<span className="text-red-500">*</span>
+                </Label>
+                <Controller
+                  name="type"
+                  control={control}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className="relative z-[1] bg-white">
+                        <SelectValue placeholder="Chọn loại giảm giá" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="PERCENTAGE">Phần trăm (%)</SelectItem>
                         <SelectItem value="FIXED_AMOUNT">Số tiền cố định (VNĐ)</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  )}
+                />
+                <FieldAlertError errors={errors} fieldName="type" />
+              </div>
 
-              {/* Value */}
-              <FormField
-                control={form.control}
-                name="value"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Giá trị giảm giá *{watchType === 'PERCENTAGE' ? ' (%)' : ' (VNĐ)'}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        max={watchType === 'PERCENTAGE' ? '100' : undefined}
-                        step={watchType === 'PERCENTAGE' ? '0.01' : '1000'}
-                        placeholder={watchType === 'PERCENTAGE' ? '10' : '50000'}
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Giá trị */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="value">
+                  Giá trị<span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="value"
+                  type="number"
+                  min="0"
+                  step={watchType === 'PERCENTAGE' ? '0.01' : '1000'}
+                  placeholder={watchType === 'PERCENTAGE' ? '0' : '0'}
+                  {...register('value', { valueAsNumber: true })}
+                  className="relative z-[1] bg-white"
+                />
+                <FieldAlertError errors={errors} fieldName="value" />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Min Order Amount */}
-              <FormField
-                control={form.control}
-                name="minOrderAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Số tiền đơn hàng tối thiểu (VNĐ)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1000"
-                        placeholder="100000"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Số tiền đơn hàng tối thiểu */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="minOrderAmount">
+                  Số tiền đơn hàng tối thiểu<span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="minOrderAmount"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  placeholder="0"
+                  {...register('minOrderAmount', { valueAsNumber: true })}
+                  className="relative z-[1] bg-white"
+                />
+                <FieldAlertError errors={errors} fieldName="minOrderAmount" />
+              </div>
 
-              {/* Max Discount Amount */}
-              <FormField
-                control={form.control}
-                name="maxDiscountAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Số tiền giảm tối đa (VNĐ)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        step="1000"
-                        placeholder="50000"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* Số tiền giảm tối đa */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="maxDiscountAmount">
+                  Số tiền giảm tối đa
+                </Label>
+                <Input
+                  id="maxDiscountAmount"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  placeholder="0"
+                  {...register('maxDiscountAmount', { valueAsNumber: true })}
+                  className="relative z-[1] bg-white"
+                />
+                <FieldAlertError errors={errors} fieldName="maxDiscountAmount" />
+              </div>
             </div>
 
-            {/* Usage Limit */}
-            <FormField
-              control={form.control}
-              name="usageLimit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Giới hạn số lần sử dụng *</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={discount.usedCount || 1}
-                      placeholder="100"
-                      {...field}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+            {/* Giới hạn số lần sử dụng */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="usageLimit">
+                Giới hạn số lần sử dụng<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="usageLimit"
+                type="number"
+                min="1"
+                step="1"
+                placeholder="1"
+                {...register('usageLimit', { valueAsNumber: true })}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="usageLimit" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Ngày bắt đầu */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="startDate">
+                  Ngày bắt đầu<span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="startDate"
+                  type="datetime-local"
+                  {...register('startDate')}
+                  className="relative z-[1] bg-white"
+                />
+                <FieldAlertError errors={errors} fieldName="startDate" />
+              </div>
+
+              {/* Ngày kết thúc */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="endDate">
+                  Ngày kết thúc<span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="endDate"
+                  type="datetime-local"
+                  {...register('endDate')}
+                  min={watch('startDate') || new Date().toISOString().slice(0, 16)}
+                  className="relative z-[1] bg-white"
+                />
+                <FieldAlertError errors={errors} fieldName="endDate" />
+              </div>
+            </div>
+
+            {/* Trạng thái hoạt động */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="isActive">Trạng thái hoạt động</Label>
+              <div className="flex items-center space-x-2">
+                <Controller
+                  name="isActive"
+                  control={control}
+                  render={({ field }) => (
+                    <Switch
+                      id="isActive"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                     />
-                  </FormControl>
-                  <FormDescription>
-                    Đã sử dụng: {discount.usedCount || 0} lần. Giới hạn mới phải lớn hơn hoặc bằng số lần đã
-                    sử dụng.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              {/* Start Date */}
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ngày bắt đầu *</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* End Date */}
-              <FormField
-                control={form.control}
-                name="endDate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Ngày kết thúc *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="datetime-local"
-                        {...field}
-                        min={form.watch('startDate') || new Date().toISOString().slice(0, 16)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  )}
+                />
+                <Label htmlFor="isActive" className="text-sm font-normal">
+                  {watch('isActive') ? 'Đang hoạt động' : 'Tạm dừng'}
+                </Label>
+              </div>
+              <FieldAlertError errors={errors} fieldName="isActive" />
             </div>
+          </div>
 
-            {/* Is Active */}
-            <FormField
-              control={form.control}
-              name="isActive"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                  <div className="space-y-0.5">
-                    <FormLabel>Trạng thái hoạt động</FormLabel>
-                    <FormDescription>Bật/tắt để kích hoạt/tạm dừng mã giảm giá</FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-                Hủy
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Đang cập nhật...' : 'Cập nhật'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+              disabled={loading}
+            >
+              Hủy
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Đang cập nhật...' : 'Cập nhật'}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
