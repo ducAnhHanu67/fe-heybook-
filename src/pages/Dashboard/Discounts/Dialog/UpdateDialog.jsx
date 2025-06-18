@@ -17,6 +17,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
 import Joi from 'joi'
 import FieldAlertError from '@/components/Form/FieldAlertError'
+import { updateCouponAPI } from '@/apis'
+import { toast } from 'react-toastify'
 
 const discountSchema = Joi.object({
   code: Joi.string().required().messages({
@@ -94,7 +96,6 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
 
   const watchType = watch('type')
 
-  // Load discount data when dialog opens
   useEffect(() => {
     if (discount && open) {
       setValue('code', discount.code || '')
@@ -105,31 +106,51 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
       setValue('minOrderAmount', discount.minOrderAmount || 0)
       setValue('maxDiscountAmount', discount.maxDiscountAmount || 0)
       setValue('usageLimit', discount.usageLimit || 1)
-      setValue('startDate', discount.startDate
-        ? (discount.startDate.includes('T') ? discount.startDate.slice(0, 16) : discount.startDate + 'T00:00')
-        : new Date().toISOString().slice(0, 16))
-      setValue('endDate', discount.endDate
-        ? (discount.endDate.includes('T') ? discount.endDate.slice(0, 16) : discount.endDate + 'T23:59')
-        : new Date().toISOString().slice(0, 16))
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return ''
+        try {
+          const date = new Date(dateString)
+
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          const hours = String(date.getHours()).padStart(2, '0')
+          const minutes = String(date.getMinutes()).padStart(2, '0')
+
+          return `${year}-${month}-${day}T${hours}:${minutes}`
+        } catch {
+          return ''
+        }
+      }
+
+      setValue('startDate', formatDateForInput(discount.startDate))
+      setValue('endDate', formatDateForInput(discount.endDate))
       setValue('isActive', discount.isActive ?? true)
     }
   }, [discount, open, setValue])
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
       setLoading(true)
 
-      // TODO: Replace with actual API call
-      // console.log('Updating discount:', data)
+      const payload = {
+        ...data,
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: new Date(data.endDate).toISOString()
+      }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await updateCouponAPI(discount.id, payload)
 
-      // Call onSuccess callback
+      toast.success('Cập nhật mã giảm giá thành công!', {
+        theme: 'colored'
+      })
+
       onSuccess?.()
     } catch {
-      // TODO: Handle error properly
-      // console.error('Error updating discount:', error)
+      // Show error toast
+      toast.error('Có lỗi xảy ra khi cập nhật mã giảm giá!', {
+        theme: 'colored'
+      })
     } finally {
       setLoading(false)
     }
@@ -150,9 +171,7 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Chỉnh sửa mã giảm giá</DialogTitle>
-          <DialogDescription>
-            Cập nhật thông tin mã giảm giá. Nhấn lưu khi hoàn tất.
-          </DialogDescription>
+          <DialogDescription>Cập nhật thông tin mã giảm giá. Nhấn lưu khi hoàn tất.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -192,14 +211,12 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
 
             {/* Mô tả */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="description">
-                Mô tả
-              </Label>
+              <Label htmlFor="description">Mô tả</Label>
               <Textarea
                 id="description"
                 placeholder="Mô tả chi tiết về mã giảm giá..."
                 {...register('description')}
-                className="relative z-[1] bg-white min-h-[80px]"
+                className="relative z-[1] min-h-[80px] bg-white"
               />
               <FieldAlertError errors={errors} fieldName="description" />
             </div>
@@ -236,8 +253,6 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
                 <Input
                   id="value"
                   type="number"
-                  min="0"
-                  step={watchType === 'PERCENTAGE' ? '0.01' : '1000'}
                   placeholder={watchType === 'PERCENTAGE' ? '0' : '0'}
                   {...register('value', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -255,8 +270,6 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
                 <Input
                   id="minOrderAmount"
                   type="number"
-                  min="0"
-                  step="1000"
                   placeholder="0"
                   {...register('minOrderAmount', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -266,14 +279,10 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
 
               {/* Số tiền giảm tối đa */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="maxDiscountAmount">
-                  Số tiền giảm tối đa
-                </Label>
+                <Label htmlFor="maxDiscountAmount">Số tiền giảm tối đa</Label>
                 <Input
                   id="maxDiscountAmount"
                   type="number"
-                  min="0"
-                  step="1000"
                   placeholder="0"
                   {...register('maxDiscountAmount', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -290,8 +299,6 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
               <Input
                 id="usageLimit"
                 type="number"
-                min="1"
-                step="1"
                 placeholder="1"
                 {...register('usageLimit', { valueAsNumber: true })}
                 className="relative z-[1] bg-white"
@@ -338,11 +345,7 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
                   name="isActive"
                   control={control}
                   render={({ field }) => (
-                    <Switch
-                      id="isActive"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
                 <Label htmlFor="isActive" className="text-sm font-normal">

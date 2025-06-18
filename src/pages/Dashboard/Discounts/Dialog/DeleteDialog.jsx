@@ -8,6 +8,8 @@ import {
   DialogTitle
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { deleteCouponAPI } from '@/apis'
+import { toast } from 'react-toastify'
 
 export default function DeleteDialog({ open, onOpenChange, discount, onSuccess }) {
   const [loading, setLoading] = useState(false)
@@ -18,17 +20,17 @@ export default function DeleteDialog({ open, onOpenChange, discount, onSuccess }
     try {
       setLoading(true)
 
-      // TODO: Replace with actual API call
-      // await deleteDiscount(discount.id)
+      await deleteCouponAPI(discount.id)
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      toast.success('Xóa mã giảm giá thành công!', {
+        theme: 'colored'
+      })
 
-      // Call onSuccess callback
       onSuccess?.()
     } catch {
-      // TODO: Handle error properly
-      // showErrorToast('Lỗi khi xóa mã giảm giá')
+      toast.error('Có lỗi xảy ra khi xóa mã giảm giá!', {
+        theme: 'colored'
+      })
     } finally {
       setLoading(false)
     }
@@ -40,7 +42,8 @@ export default function DeleteDialog({ open, onOpenChange, discount, onSuccess }
         <DialogHeader>
           <DialogTitle>Bạn có chắc chắn muốn xóa mã giảm giá này?</DialogTitle>
           <DialogDescription>
-            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn mã giảm giá &ldquo;{discount?.name}&rdquo; khỏi cơ sở dữ liệu.
+            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn mã giảm giá &ldquo;
+            {discount?.name}&rdquo; khỏi cơ sở dữ liệu.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-1">

@@ -18,6 +18,7 @@ import UpdateDialog from './Dialog/UpdateDialog'
 import DeleteDialog from './Dialog/DeleteDialog'
 import ReadDialog from './Dialog/ReadDialog'
 import { DEFAULT_PAGE, DEFAULT_ITEMS_PER_PAGE } from '@/utils/constant'
+import { getCouponsAPI } from '@/apis'
 
 export default function Discounts() {
   const location = useLocation()
@@ -38,275 +39,43 @@ export default function Discounts() {
   const currentPage = query.get('page') || DEFAULT_PAGE
   const totalPages = Math.ceil(totalCount / DEFAULT_ITEMS_PER_PAGE)
 
-  // Mock data - replace with API call
+  // Fetch discounts data
   useEffect(() => {
-    const allMockDiscounts = [
-      {
-        id: 1,
-        code: 'SUMMER2024',
-        name: 'Giảm giá mùa hè',
-        description: 'Mã giảm giá đặc biệt cho mùa hè 2024',
-        type: 'PERCENTAGE',
-        value: 20.0,
-        minOrderAmount: 100000.0,
-        maxDiscountAmount: 50000.0,
-        usageLimit: 100,
-        usedCount: 25,
-        startDate: '2024-06-01T00:00',
-        endDate: '2024-08-31T23:59',
-        isActive: true,
-        createdAt: '2024-05-15',
-        updatedAt: '2024-05-15'
-      },
-      {
-        id: 2,
-        code: 'NEWUSER50',
-        name: 'Khách hàng mới',
-        description: 'Ưu đãi đặc biệt cho khách hàng mới',
-        type: 'FIXED_AMOUNT',
-        value: 50000.0,
-        minOrderAmount: 200000.0,
-        maxDiscountAmount: 50000.0,
-        usageLimit: 200,
-        usedCount: 150,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 3,
-        code: 'EXPIRED10',
-        name: 'Mã đã hết hạn',
-        description: 'Mã giảm giá đã hết hạn sử dụng',
-        type: 'PERCENTAGE',
-        value: 10.0,
-        minOrderAmount: 50000.0,
-        maxDiscountAmount: 30000.0,
-        usageLimit: 50,
-        usedCount: 45,
-        startDate: '2024-01-01',
-        endDate: '2024-05-31',
-        isActive: false,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-05-31'
-      },
-      {
-        id: 4,
-        code: 'AUTUMN2024',
-        name: 'Giảm giá mùa thu',
-        description: 'Mã giảm giá đặc biệt cho mùa thu 2024',
-        type: 'PERCENTAGE',
-        value: 15.0,
-        minOrderAmount: 150000.0,
-        maxDiscountAmount: 40000.0,
-        usageLimit: 80,
-        usedCount: 30,
-        startDate: '2024-09-01',
-        endDate: '2024-11-30',
-        isActive: true,
-        createdAt: '2024-08-15',
-        updatedAt: '2024-08-15'
-      },
-      {
-        id: 5,
-        code: 'WINTER2024',
-        name: 'Giảm giá mùa đông',
-        description: 'Mã giảm giá đặc biệt cho mùa đông 2024',
-        type: 'FIXED_AMOUNT',
-        value: 75000.0,
-        minOrderAmount: 300000.0,
-        maxDiscountAmount: 75000.0,
-        usageLimit: 150,
-        usedCount: 60,
-        startDate: '2024-12-01',
-        endDate: '2025-02-28',
-        isActive: true,
-        createdAt: '2024-11-15',
-        updatedAt: '2024-11-15'
-      },
-      {
-        id: 6,
-        code: 'SPRING2025',
-        name: 'Giảm giá mùa xuân',
-        description: 'Mã giảm giá đặc biệt cho mùa xuân 2025',
-        type: 'PERCENTAGE',
-        value: 25.0,
-        minOrderAmount: 120000.0,
-        maxDiscountAmount: 60000.0,
-        usageLimit: 120,
-        usedCount: 45,
-        startDate: '2025-03-01',
-        endDate: '2025-05-31',
-        isActive: true,
-        createdAt: '2025-02-15',
-        updatedAt: '2025-02-15'
-      },
-      {
-        id: 7,
-        code: 'FLASH50',
-        name: 'Flash Sale',
-        description: 'Mã giảm giá flash sale trong thời gian ngắn',
-        type: 'FIXED_AMOUNT',
-        value: 100000.0,
-        minOrderAmount: 500000.0,
-        maxDiscountAmount: 100000.0,
-        usageLimit: 50,
-        usedCount: 40,
-        startDate: '2024-06-15',
-        endDate: '2024-06-20',
-        isActive: false,
-        createdAt: '2024-06-14',
-        updatedAt: '2024-06-20'
-      },
-      {
-        id: 8,
-        code: 'LOYAL30',
-        name: 'Khách hàng thân thiết',
-        description: 'Ưu đãi dành cho khách hàng thân thiết',
-        type: 'PERCENTAGE',
-        value: 30.0,
-        minOrderAmount: 250000.0,
-        maxDiscountAmount: 80000.0,
-        usageLimit: 100,
-        usedCount: 75,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 9,
-        code: 'BIRTHDAY20',
-        name: 'Sinh nhật',
-        description: 'Mã giảm giá sinh nhật đặc biệt',
-        type: 'PERCENTAGE',
-        value: 20.0,
-        minOrderAmount: 100000.0,
-        maxDiscountAmount: 50000.0,
-        usageLimit: 365,
-        usedCount: 120,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 10,
-        code: 'WEEKEND15',
-        name: 'Cuối tuần',
-        description: 'Giảm giá cuối tuần hàng tuần',
-        type: 'PERCENTAGE',
-        value: 15.0,
-        minOrderAmount: 80000.0,
-        maxDiscountAmount: 35000.0,
-        usageLimit: 200,
-        usedCount: 150,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 11,
-        code: 'STUDENT25',
-        name: 'Sinh viên',
-        description: 'Ưu đãi đặc biệt dành cho sinh viên',
-        type: 'PERCENTAGE',
-        value: 25.0,
-        minOrderAmount: 70000.0,
-        maxDiscountAmount: 40000.0,
-        usageLimit: 300,
-        usedCount: 180,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 12,
-        code: 'BULK100',
-        name: 'Mua số lượng lớn',
-        description: 'Giảm giá khi mua số lượng lớn',
-        type: 'FIXED_AMOUNT',
-        value: 150000.0,
-        minOrderAmount: 1000000.0,
-        maxDiscountAmount: 150000.0,
-        usageLimit: 30,
-        usedCount: 15,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 13,
-        code: 'HOLIDAY40',
-        name: 'Ngày lễ',
-        description: 'Mã giảm giá các ngày lễ đặc biệt',
-        type: 'PERCENTAGE',
-        value: 40.0,
-        minOrderAmount: 200000.0,
-        maxDiscountAmount: 100000.0,
-        usageLimit: 100,
-        usedCount: 85,
-        startDate: '2024-04-30',
-        endDate: '2024-05-03',
-        isActive: false,
-        createdAt: '2024-04-25',
-        updatedAt: '2024-05-03'
-      },
-      {
-        id: 14,
-        code: 'FIRSTORDER',
-        name: 'Đơn hàng đầu tiên',
-        description: 'Ưu đãi cho đơn hàng đầu tiên',
-        type: 'FIXED_AMOUNT',
-        value: 30000.0,
-        minOrderAmount: 100000.0,
-        maxDiscountAmount: 30000.0,
-        usageLimit: 500,
-        usedCount: 320,
-        startDate: '2024-01-01',
-        endDate: '2024-12-31',
-        isActive: true,
-        createdAt: '2024-01-01',
-        updatedAt: '2024-01-01'
-      },
-      {
-        id: 15,
-        code: 'COMBO50',
-        name: 'Combo đặc biệt',
-        description: 'Giảm giá khi mua combo sản phẩm',
-        type: 'PERCENTAGE',
-        value: 50.0,
-        minOrderAmount: 400000.0,
-        maxDiscountAmount: 120000.0,
-        usageLimit: 60,
-        usedCount: 45,
-        startDate: '2024-06-01',
-        endDate: '2024-08-31',
-        isActive: true,
-        createdAt: '2024-05-25',
-        updatedAt: '2024-05-25'
+    const fetchDiscounts = async () => {
+      try {
+        setLoading(true)
+        const searchPath = `?page=${currentPage}&limit=${DEFAULT_ITEMS_PER_PAGE}`
+        const response = await getCouponsAPI(searchPath)
+
+        setDiscounts(response.coupons || [])
+        setTotalCount(response.totalItems || 0)
+      } catch {
+        setDiscounts([])
+        setTotalCount(0)
+      } finally {
+        setLoading(false)
       }
-    ]
+    }
 
-    // Simulate pagination
-    const startIndex = (Number(currentPage) - 1) * DEFAULT_ITEMS_PER_PAGE
-    const endIndex = startIndex + DEFAULT_ITEMS_PER_PAGE
-    const paginatedDiscounts = allMockDiscounts.slice(startIndex, endIndex)
-
-    setDiscounts(paginatedDiscounts)
-    setTotalCount(allMockDiscounts.length)
-    setLoading(false)
+    fetchDiscounts()
   }, [currentPage])
+
+  // Refetch data function
+  const refetchDiscounts = async () => {
+    try {
+      setLoading(true)
+      const searchPath = `?page=${currentPage}&limit=${DEFAULT_ITEMS_PER_PAGE}`
+      const response = await getCouponsAPI(searchPath)
+
+      setDiscounts(response.coupons || [])
+      setTotalCount(response.totalItems || 0)
+    } catch {
+      setDiscounts([])
+      setTotalCount(0)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleCreate = () => {
     setCreateDialogOpen(true)
@@ -341,7 +110,8 @@ export default function Discounts() {
     if (discount.type === 'PERCENTAGE') {
       return `${discount.value}%`
     } else {
-      return `${discount.value.toLocaleString('vi-VN')}đ`
+      const value = typeof discount.value === 'string' ? parseFloat(discount.value) : discount.value
+      return `${value.toLocaleString('vi-VN')}₫`
     }
   }
 
@@ -542,7 +312,7 @@ export default function Discounts() {
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onSuccess={() => {
-          // Refresh data
+          refetchDiscounts()
           setCreateDialogOpen(false)
         }}
       />
@@ -552,7 +322,7 @@ export default function Discounts() {
         onOpenChange={setUpdateDialogOpen}
         discount={selectedDiscount}
         onSuccess={() => {
-          // Refresh data
+          refetchDiscounts()
           setUpdateDialogOpen(false)
           setSelectedDiscount(null)
         }}
@@ -563,7 +333,7 @@ export default function Discounts() {
         onOpenChange={setDeleteDialogOpen}
         discount={selectedDiscount}
         onSuccess={() => {
-          // Refresh data
+          refetchDiscounts()
           setDeleteDialogOpen(false)
           setSelectedDiscount(null)
         }}

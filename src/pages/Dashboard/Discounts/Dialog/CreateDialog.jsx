@@ -17,6 +17,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
 import Joi from 'joi'
 import FieldAlertError from '@/components/Form/FieldAlertError'
+import { createCouponAPI } from '@/apis'
+import { toast } from 'react-toastify'
 
 const discountSchema = Joi.object({
   code: Joi.string().required().messages({
@@ -85,29 +87,38 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
       minOrderAmount: 0,
       maxDiscountAmount: 0,
       usageLimit: 1,
-      startDate: new Date().toISOString().slice(0, 16),
-      endDate: new Date().toISOString().slice(0, 16),
+      startDate: '',
+      endDate: '',
       isActive: true
     }
   })
 
   const watchType = watch('type')
 
-  const onSubmit = async () => {
+  const onSubmit = async (data) => {
     try {
       setLoading(true)
 
-      // TODO: Replace with actual API call
-      // console.log('Creating discount:', data)
+      const payload = {
+        ...data,
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: new Date(data.endDate).toISOString()
+      }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await createCouponAPI(payload)
 
-      // Call onSuccess callback
+      toast.success('Tạo mã giảm giá thành công!', {
+        theme: 'colored'
+      })
+
+      reset()
+      clearErrors()
+
       onSuccess?.()
     } catch {
-      // TODO: Handle error properly
-      // console.error('Error creating discount:', error)
+      toast.error('Có lỗi xảy ra khi tạo mã giảm giá!', {
+        theme: 'colored'
+      })
     } finally {
       setLoading(false)
     }
@@ -126,9 +137,7 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
       <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Thêm mã giảm giá mới</DialogTitle>
-          <DialogDescription>
-            Nhập thông tin để tạo mã giảm giá mới. Nhấn lưu khi hoàn tất.
-          </DialogDescription>
+          <DialogDescription>Nhập thông tin để tạo mã giảm giá mới. Nhấn lưu khi hoàn tất.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -168,14 +177,12 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
 
             {/* Mô tả */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="description">
-                Mô tả
-              </Label>
+              <Label htmlFor="description">Mô tả</Label>
               <Textarea
                 id="description"
                 placeholder="Mô tả chi tiết về mã giảm giá..."
                 {...register('description')}
-                className="relative z-[1] bg-white min-h-[80px]"
+                className="relative z-[1] min-h-[80px] bg-white"
               />
               <FieldAlertError errors={errors} fieldName="description" />
             </div>
@@ -212,8 +219,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
                 <Input
                   id="value"
                   type="number"
-                  min="0"
-                  step={watchType === 'PERCENTAGE' ? '0.01' : '1000'}
                   placeholder={watchType === 'PERCENTAGE' ? '0' : '0'}
                   {...register('value', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -231,8 +236,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
                 <Input
                   id="minOrderAmount"
                   type="number"
-                  min="0"
-                  step="1000"
                   placeholder="0"
                   {...register('minOrderAmount', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -242,14 +245,10 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
 
               {/* Số tiền giảm tối đa */}
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="maxDiscountAmount">
-                  Số tiền giảm tối đa
-                </Label>
+                <Label htmlFor="maxDiscountAmount">Số tiền giảm tối đa</Label>
                 <Input
                   id="maxDiscountAmount"
                   type="number"
-                  min="0"
-                  step="1000"
                   placeholder="0"
                   {...register('maxDiscountAmount', { valueAsNumber: true })}
                   className="relative z-[1] bg-white"
@@ -266,8 +265,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
               <Input
                 id="usageLimit"
                 type="number"
-                min="1"
-                step="1"
                 placeholder="1"
                 {...register('usageLimit', { valueAsNumber: true })}
                 className="relative z-[1] bg-white"
@@ -285,7 +282,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
                   id="startDate"
                   type="datetime-local"
                   {...register('startDate')}
-                  min={new Date().toISOString().slice(0, 16)}
                   className="relative z-[1] bg-white"
                 />
                 <FieldAlertError errors={errors} fieldName="startDate" />
@@ -300,7 +296,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
                   id="endDate"
                   type="datetime-local"
                   {...register('endDate')}
-                  min={watch('startDate') || new Date().toISOString().slice(0, 16)}
                   className="relative z-[1] bg-white"
                 />
                 <FieldAlertError errors={errors} fieldName="endDate" />
@@ -315,11 +310,7 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
                   name="isActive"
                   control={control}
                   render={({ field }) => (
-                    <Switch
-                      id="isActive"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
                   )}
                 />
                 <Label htmlFor="isActive" className="text-sm font-normal">

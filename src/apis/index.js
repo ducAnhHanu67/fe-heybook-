@@ -148,3 +148,29 @@ export const createUserAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/admin/users`, data)
   return response.data
 }
+
+// *** Coupons ***
+export const getCouponsAPI = async (searchPath = '') => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/coupons${searchPath}`)
+  return response.data
+}
+
+export const getCouponByIdAPI = async (couponId) => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/coupons/${couponId}`)
+  return response.data
+}
+
+export const createCouponAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/coupons`, data)
+  return response.data
+}
+
+export const updateCouponAPI = async (couponId, data) => {
+  const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/coupons/${couponId}`, data)
+  return response.data
+}
+
+export const deleteCouponAPI = async (couponId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/coupons/${couponId}`)
+  return response.data
+}
