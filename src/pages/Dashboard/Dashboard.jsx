@@ -6,6 +6,7 @@ import Categories from './Categories/Categories'
 import BookGenres from './BookGenres/BookGenres'
 import Products from './Product/Products'
 import Users from './Users/Users'
+import Discounts from './Discounts/Discounts'
 
 export default function Dashboard() {
   return (
@@ -18,11 +19,13 @@ export default function Dashboard() {
           <HeaderDashboard />
 
           {/* Content */}
-          <div className="flex w-full flex-1 flex-col bg-gray-100 p-4 md:px-4 md:py-1 md:pt-1.5">            {/* Routes */}
+          <div className="flex w-full flex-1 flex-col bg-gray-100 p-4 md:px-4 md:py-1 md:pt-1.5">
+            {/* Routes */}
             <Routes>
               <Route path="/categories/*" element={<Categories />} />
               <Route path="/book-genres/*" element={<BookGenres />} />
               <Route path="/products/*" element={<Products />} />
+              <Route path="/discounts/*" element={<Discounts />} />
               <Route path="/users/*" element={<Users />} />
             </Routes>
           </div>
