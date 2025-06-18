@@ -15,12 +15,27 @@ import { formatDate } from '@/utils/formatters'
 export function ReadDialog({ user }) {
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'ADMIN':
-        return 'bg-red-100 text-red-800 hover:bg-red-100'
-      case 'CLIENT':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-      default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+    case 'ADMIN':
+      return 'bg-red-100 text-red-800 hover:bg-red-100'
+    case 'USER':
+      return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+    case 'CLIENT':
+      return 'bg-green-100 text-green-800 hover:bg-green-100'
+    default:
+      return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+    }
+  }
+
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+    case 'ADMIN':
+      return 'Quản trị viên'
+    case 'USER':
+      return 'Nhân viên'
+    case 'CLIENT':
+      return 'Khách hàng'
+    default:
+      return 'Không xác định'
     }
   }
 
@@ -68,10 +83,15 @@ export function ReadDialog({ user }) {
           </div>
 
           <div className="grid grid-cols-3 items-center gap-4">
+            <div className="text-right font-medium">Địa chỉ:</div>
+            <div className="col-span-2">{user.address || 'Chưa cập nhật'}</div>
+          </div>
+
+          <div className="grid grid-cols-3 items-center gap-4">
             <div className="text-right font-medium">Vai trò:</div>
             <div className="col-span-2">
               <Badge className={getRoleBadgeColor(user.role)}>
-                {user.role === 'ADMIN' ? 'Quản trị viên' : 'Khách hàng'}
+                {getRoleDisplayName(user.role)}
               </Badge>
             </div>
           </div>

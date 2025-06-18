@@ -1,11 +1,4 @@
-import {
-  Bell,
-  MessageCircleMore,
-  Search,
-  Settings,
-  User,
-  LogOut
-} from 'lucide-react'
+import { Bell, MessageCircleMore, Search, Settings, User, LogOut } from 'lucide-react'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,13 +14,20 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import { logoutUserAPI } from '@/redux/userSlice'
 
 export default function HeaderDashboard() {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const handleLogout = () => {
-    dispatch(logoutUserAPI())
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAPI()).unwrap()
+      navigate('/login')
+    } catch {
+      // Handle logout error if needed
+    }
   }
 
   return (
@@ -46,17 +46,11 @@ export default function HeaderDashboard() {
       </div>
 
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          className="flex h-12 w-12 items-center justify-center rounded-full"
-        >
+        <Button variant="ghost" className="flex h-12 w-12 items-center justify-center rounded-full">
           <MessageCircleMore className="size-5" size="32" />
           <span className="sr-only">Messenger</span>
         </Button>
-        <Button
-          variant="ghost"
-          className="flex h-12 w-12 items-center justify-center rounded-full"
-        >
+        <Button variant="ghost" className="flex h-12 w-12 items-center justify-center rounded-full">
           <Bell className="size-5" size="32" />
           <span className="sr-only">Notifications</span>
         </Button>
@@ -80,9 +74,7 @@ export default function HeaderDashboard() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-base leading-none font-medium">DuocAnh</p>
-                <p className="text-muted-foreground text-ms leading-none">
-                  duocanh14@gmail.com
-                </p>
+                <p className="text-muted-foreground text-ms leading-none">duocanh14@gmail.com</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -97,10 +89,7 @@ export default function HeaderDashboard() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="focus:bg-red-500 focus:text-amber-50"
-              onClick={() => handleLogout()}
-            >
+            <DropdownMenuItem className="focus:bg-red-500 focus:text-amber-50" onClick={() => handleLogout()}>
               <LogOut className="focus:bg-red-500 focus:text-amber-50" />
               Đăng xuất
             </DropdownMenuItem>

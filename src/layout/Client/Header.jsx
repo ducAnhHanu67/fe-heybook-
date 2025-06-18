@@ -15,10 +15,16 @@ import { useNavigate } from 'react-router-dom'
 export default function Header() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
   const currentUser = useSelector(selectCurrentUser)
-  const handleLogout = () => {
-    dispatch(logoutUserAPI())
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logoutUserAPI()).unwrap()
+      navigate('/login')
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // You can show a toast or alert here if needed
+    }
   }
 
   const handleAdminAccess = () => {

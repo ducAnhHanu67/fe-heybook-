@@ -48,13 +48,13 @@ export default function Profile() {
         <p className="mt-2 text-gray-600">Quản lý thông tin tài khoản và đơn hàng của bạn</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
-        <div className="lg:col-span-1">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-9">
+        <div className="lg:col-span-3">
           <Card>
             <CardHeader>
               <div className="flex items-center space-x-3">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={currentUser.avatar} alt={currentUser.fullName} />
+                  <AvatarImage src={currentUser.avatar} alt={currentUser.fullName} className="object-cover" />
                   <AvatarFallback>
                     {currentUser.fullName?.charAt(0) || currentUser.userName?.charAt(0) || 'U'}
                   </AvatarFallback>
@@ -89,7 +89,7 @@ export default function Profile() {
           </Card>
         </div>
 
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-6">
           <Routes>
             <Route path="/" element={<PersonalInfo />} />
             <Route path="/change-password" element={<ChangePassword />} />

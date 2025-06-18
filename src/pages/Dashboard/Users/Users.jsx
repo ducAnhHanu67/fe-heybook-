@@ -66,12 +66,27 @@ export default function Users() {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'ADMIN':
-        return 'bg-red-100 text-red-800 hover:bg-red-100'
-      case 'CLIENT':
-        return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-      default:
-        return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+    case 'ADMIN':
+      return 'bg-red-100 text-red-800 hover:bg-red-100'
+    case 'USER':
+      return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+    case 'CLIENT':
+      return 'bg-green-100 text-green-800 hover:bg-green-100'
+    default:
+      return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+    }
+  }
+
+  const getRoleDisplayName = (role) => {
+    switch (role) {
+    case 'ADMIN':
+      return 'Quản trị viên'
+    case 'USER':
+      return 'Nhân viên'
+    case 'CLIENT':
+      return 'Khách hàng'
+    default:
+      return 'Không xác định'
     }
   }
 
@@ -121,6 +136,7 @@ export default function Users() {
                     <TableHead>Avatar</TableHead>
                     <TableHead>Tên</TableHead>
                     <TableHead>Email</TableHead>
+                    <TableHead>Địa chỉ</TableHead>
                     <TableHead>Vai trò</TableHead>
                     <TableHead>Trạng thái</TableHead>
                     <TableHead>Ngày tạo</TableHead>
@@ -143,9 +159,12 @@ export default function Users() {
                       </TableCell>
                       <TableCell className="font-medium">{user.userName}</TableCell>
                       <TableCell>{user.email}</TableCell>
+                      <TableCell className="max-w-[200px] truncate" title={user.address}>
+                        {user.address || 'Chưa cập nhật'}
+                      </TableCell>
                       <TableCell>
                         <Badge className={getRoleBadgeColor(user.role)}>
-                          {user.role === 'ADMIN' ? 'Quản trị viên' : 'Khách hàng'}
+                          {getRoleDisplayName(user.role)}
                         </Badge>
                       </TableCell>
                       <TableCell>

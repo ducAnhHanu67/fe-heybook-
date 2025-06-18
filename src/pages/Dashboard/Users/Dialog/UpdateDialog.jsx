@@ -35,8 +35,11 @@ const updateUserSchema = Joi.object({
   password: Joi.string().allow('').min(6).messages({
     'string.min': 'Mật khẩu phải có ít nhất 6 ký tự'
   }),
-  role: Joi.string().valid('ADMIN', 'CLIENT').required().messages({
-    'any.only': 'Vai trò phải là ADMIN hoặc CLIENT',
+  address: Joi.string().allow('').optional().messages({
+    'string.empty': 'Địa chỉ có thể để trống'
+  }),
+  role: Joi.string().valid('ADMIN', 'USER', 'CLIENT').required().messages({
+    'any.only': 'Vai trò phải là ADMIN, USER hoặc CLIENT',
     'any.required': 'Vai trò là bắt buộc'
   }),
   isActive: Joi.boolean().required(),
@@ -63,6 +66,7 @@ export function UpdateDialog({ user, getUsers }) {
     defaultValues: {
       userName: user.userName,
       email: user.email,
+      address: user.address || '',
       password: '',
       role: user.role,
       isActive: user.isActive
@@ -129,6 +133,7 @@ export function UpdateDialog({ user, getUsers }) {
       reset({
         userName: user.userName,
         email: user.email,
+        address: user.address || '',
         password: '',
         role: user.role,
         isActive: user.isActive
@@ -186,6 +191,21 @@ export function UpdateDialog({ user, getUsers }) {
                 className="relative z-[1] bg-white"
               />
               <FieldAlertError errors={errors} fieldName="email" />
+            </div>
+
+            {/* Địa chỉ */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="address">
+                Địa chỉ
+              </Label>
+              <Input
+                id="address"
+                type="text"
+                placeholder="Nhập địa chỉ"
+                {...register('address')}
+                className="relative z-[1] bg-white"
+              />
+              <FieldAlertError errors={errors} fieldName="address" />
             </div>
 
             {/* Mật khẩu */}
@@ -257,6 +277,7 @@ export function UpdateDialog({ user, getUsers }) {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="CLIENT">Khách hàng</SelectItem>
+                      <SelectItem value="USER">Nhân viên</SelectItem>
                       <SelectItem value="ADMIN">Quản trị viên</SelectItem>
                     </SelectContent>
                   </Select>

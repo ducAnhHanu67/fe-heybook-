@@ -150,7 +150,11 @@ export default function PersonalInfo() {
       <CardContent className="space-y-6">
         <div className="flex items-center space-x-4">
           <Avatar className="h-20 w-20">
-            <AvatarImage src={profileData.avatar || currentUser.avatar} alt={currentUser.fullName} />
+            <AvatarImage
+              src={profileData.avatar || currentUser.avatar}
+              alt={currentUser.fullName}
+              className="object-cover"
+            />
             <AvatarFallback className="text-lg">
               {currentUser.fullName?.charAt(0) || currentUser.userName?.charAt(0) || 'U'}
             </AvatarFallback>
