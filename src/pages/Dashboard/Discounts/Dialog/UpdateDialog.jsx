@@ -88,7 +88,7 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
       maxDiscountAmount: 0,
       usageLimit: 1,
       startDate: new Date().toISOString().slice(0, 16),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16),
+      endDate: new Date().toISOString().slice(0, 16),
       isActive: true
     }
   })
@@ -140,13 +140,6 @@ export default function UpdateDialog({ open, onOpenChange, discount, onSuccess }
     } finally {
       setLoading(false)
     }
-  }
-
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(value)
   }
 
   if (!discount) return null

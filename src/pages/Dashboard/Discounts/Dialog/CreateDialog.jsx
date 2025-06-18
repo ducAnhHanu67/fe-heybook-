@@ -87,8 +87,6 @@ export default function CreateDialog({ open, onOpenChange, onSuccess }) {
       minOrderAmount: 0,
       maxDiscountAmount: 0,
       usageLimit: 1,
-      startDate: new Date().toISOString().slice(0, 16), // Format YYYY-MM-DDTHH:MM
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16), // 30 days from now
       isActive: true
     }
   })
