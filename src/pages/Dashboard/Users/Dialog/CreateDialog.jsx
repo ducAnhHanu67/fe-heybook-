@@ -13,13 +13,14 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
 import Joi from 'joi'
 import FieldAlertError from '@/components/Form/FieldAlertError'
 import { createUserAPI } from '@/apis'
 import { toast } from 'react-toastify'
+import { uploadToCloudinary } from '@/utils/cloudinary'
 
 const userSchema = Joi.object({
   userName: Joi.string().required().messages({
@@ -43,11 +44,15 @@ const userSchema = Joi.object({
     'any.only': 'Vai trò phải là ADMIN hoặc CLIENT',
     'any.required': 'Vai trò là bắt buộc'
   }),
-  isActive: Joi.boolean().required()
+  isActive: Joi.boolean().required(),
+  avatar: Joi.string().allow('', null).optional()
 })
 
 export function CreateDialog({ getUsers }) {
   const [open, setOpen] = useState(false)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const {
@@ -56,6 +61,7 @@ export function CreateDialog({ getUsers }) {
     reset,
     control,
     clearErrors,
+    setValue,
     formState: { errors }
   } = useForm({
     resolver: joiResolver(userSchema),
@@ -65,14 +71,54 @@ export function CreateDialog({ getUsers }) {
     }
   })
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setAvatarFile(file)
+    setAvatarPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const removeAvatar = () => {
+    setAvatarFile(null)
+    setAvatarPreviewUrl('')
+    setValue('avatar', '', { shouldValidate: true })
+    // Reset file input
+    const fileInput = document.getElementById('avatar')
+    if (fileInput) fileInput.value = ''
+  }
+
   const createUser = async (data) => {
     setIsLoading(true)
     try {
-      const res = await createUserAPI(data)
+      let avatarUrl = ''
+      
+      // Upload avatar nếu có file được chọn
+      if (avatarFile) {
+        setIsUploading(true)
+        try {
+          const uploadResult = await uploadToCloudinary(avatarFile)
+          avatarUrl = uploadResult.url
+        } catch (uploadError) {
+          toast.error('Upload avatar thất bại: ' + uploadError.message)
+          return
+        } finally {
+          setIsUploading(false)
+        }
+      }
+
+      const userData = {
+        ...data,
+        avatar: avatarUrl || data.avatar || ''
+      }
+
+      const res = await createUserAPI(userData)
       if (!res.error) {
         toast.success('Thêm người dùng thành công!')
         getUsers()
         reset()
+        setAvatarFile(null)
+        setAvatarPreviewUrl('')
         setOpen(false)
       }
     } catch (err) {
@@ -86,6 +132,8 @@ export function CreateDialog({ getUsers }) {
     if (!isOpen) {
       reset()
       clearErrors()
+      setAvatarFile(null)
+      setAvatarPreviewUrl('')
     }
     setOpen(isOpen)
   }
@@ -148,6 +196,43 @@ export function CreateDialog({ getUsers }) {
               <FieldAlertError errors={errors} fieldName="password" />
             </div>
 
+            {/* Avatar */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="avatar">
+                Avatar
+              </Label>
+              <Input
+                type="file"
+                id="avatar"
+                accept="image/*"
+                className="relative z-[1] bg-white"
+                onChange={handleAvatarChange}
+              />
+              <FieldAlertError errors={errors} fieldName="avatar" />
+
+              {avatarPreviewUrl && (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="relative">
+                    <img
+                      src={avatarPreviewUrl}
+                      alt="Avatar preview"
+                      className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={removeAvatar}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Xóa ảnh
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Vai trò */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="role">
@@ -196,8 +281,8 @@ export function CreateDialog({ getUsers }) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Đang tạo...' : 'Lưu'}
+            <Button type="submit" disabled={isLoading || isUploading}>
+              {isUploading ? 'Đang upload avatar...' : isLoading ? 'Đang tạo...' : 'Lưu'}
             </Button>
           </DialogFooter>
         </form>

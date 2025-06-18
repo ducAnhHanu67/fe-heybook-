@@ -13,13 +13,14 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
-import { Edit } from 'lucide-react'
+import { Edit, X } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { joiResolver } from '@hookform/resolvers/joi'
 import Joi from 'joi'
 import FieldAlertError from '@/components/Form/FieldAlertError'
 import { updateUserAPI } from '@/apis'
 import { toast } from 'react-toastify'
+import { uploadToCloudinary } from '@/utils/cloudinary'
 
 const updateUserSchema = Joi.object({
   userName: Joi.string().required().messages({
@@ -38,12 +39,16 @@ const updateUserSchema = Joi.object({
     'any.only': 'Vai trò phải là ADMIN hoặc CLIENT',
     'any.required': 'Vai trò là bắt buộc'
   }),
-  isActive: Joi.boolean().required()
+  isActive: Joi.boolean().required(),
+  avatar: Joi.string().allow('', null).optional()
 })
 
 export function UpdateDialog({ user, getUsers }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [avatarFile, setAvatarFile] = useState(null)
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('')
+  const [isUploading, setIsUploading] = useState(false)
   
   const {
     register,
@@ -51,6 +56,7 @@ export function UpdateDialog({ user, getUsers }) {
     reset,
     control,
     clearErrors,
+    setValue,
     formState: { errors }
   } = useForm({
     resolver: joiResolver(updateUserSchema),
@@ -63,11 +69,44 @@ export function UpdateDialog({ user, getUsers }) {
     }
   })
 
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setAvatarFile(file)
+    setAvatarPreviewUrl(URL.createObjectURL(file))
+  }
+
+  const removeAvatar = () => {
+    setAvatarFile(null)
+    setAvatarPreviewUrl(user.avatar || '')
+    setValue('avatar', user.avatar || '', { shouldValidate: true })
+    // Reset file input
+    const fileInput = document.getElementById('avatar-update')
+    if (fileInput) fileInput.value = ''
+  }
+
   const updateUser = async (data) => {
     setIsLoading(true)
     try {
+      let avatarUrl = data.avatar || user.avatar || ''
+      
+      // Upload avatar mới nếu có file được chọn
+      if (avatarFile) {
+        setIsUploading(true)
+        try {
+          const uploadResult = await uploadToCloudinary(avatarFile)
+          avatarUrl = uploadResult.url
+        } catch (uploadError) {
+          toast.error('Upload avatar thất bại: ' + uploadError.message)
+          return
+        } finally {
+          setIsUploading(false)
+        }
+      }
+
       // Loại bỏ password nếu trống
-      const updateData = { ...data }
+      const updateData = { ...data, avatar: avatarUrl }
       if (!updateData.password || updateData.password.trim() === '') {
         delete updateData.password
       }
@@ -95,6 +134,11 @@ export function UpdateDialog({ user, getUsers }) {
         isActive: user.isActive
       })
       clearErrors()
+      setAvatarFile(null)
+      setAvatarPreviewUrl('')
+    } else {
+      // Khi mở dialog, set avatar preview từ dữ liệu user hiện tại
+      setAvatarPreviewUrl(user.avatar || '')
     }
     setOpen(isOpen)
   }
@@ -159,6 +203,45 @@ export function UpdateDialog({ user, getUsers }) {
               <FieldAlertError errors={errors} fieldName="password" />
             </div>
 
+            {/* Avatar */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="avatar-update">
+                Avatar
+              </Label>
+              <Input
+                type="file"
+                id="avatar-update"
+                accept="image/*"
+                className="relative z-[1] bg-white"
+                onChange={handleAvatarChange}
+              />
+              <FieldAlertError errors={errors} fieldName="avatar" />
+
+              {avatarPreviewUrl && (
+                <div className="mt-2 flex items-center gap-3">
+                  <div className="relative">
+                    <img
+                      src={avatarPreviewUrl}
+                      alt="Avatar preview"
+                      className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+                    />
+                  </div>
+                  {avatarFile && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={removeAvatar}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      <X className="h-4 w-4 mr-1" />
+                      Hủy thay đổi
+                    </Button>
+                  )}
+                </div>
+              )}
+            </div>
+
             {/* Vai trò */}
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="role">
@@ -207,8 +290,8 @@ export function UpdateDialog({ user, getUsers }) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Đang cập nhật...' : 'Lưu thay đổi'}
+            <Button type="submit" disabled={isLoading || isUploading}>
+              {isUploading ? 'Đang upload avatar...' : isLoading ? 'Đang cập nhật...' : 'Lưu thay đổi'}
             </Button>
           </DialogFooter>
         </form>
