@@ -22,3 +22,28 @@ export const interceptorLoadingElements = (calling) => {
     }
   }
 }
+
+// Format date to Vietnamese locale
+export const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('vi-VN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Format price to Vietnamese locale
+export const formatPrice = (price) => {
+  if (!price && price !== 0) return '0'
+  return new Intl.NumberFormat('vi-VN').format(price)
+}
+
+// Format price with currency symbol
+export const formatPriceWithCurrency = (price) => {
+  if (!price && price !== 0) return '0đ'
+  return `${formatPrice(price)}đ`
+}

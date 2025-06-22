@@ -8,7 +8,6 @@ export default function FieldAlertError({ errors, fieldName }) {
   const getError = (errorsObj, path) => {
     return path.split('.').reduce((obj, key) => (obj && obj[key] ? obj[key] : null), errorsObj)
   }
-
   const error = getError(errors, fieldName)?.message
   if (!error) return null
 

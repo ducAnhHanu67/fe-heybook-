@@ -1,0 +1,51 @@
+import { GoogleLogin } from '@react-oauth/google'
+import { useDispatch } from 'react-redux'
+import { googleLoginUserAPI } from '@/redux/userSlice'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+
+export function GoogleLoginButton() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      // credentialResponse.credential contains the id_token (JWT)
+      const result = await dispatch(googleLoginUserAPI(credentialResponse.credential))
+
+      if (!result.error) {
+        const user = result.payload
+        // Chỉ cho phép ADMIN hoặc USER truy cập dashboard
+        if (user.role === 'ADMIN' || user.role === 'USER') {
+          navigate('/dashboard')
+          toast.success('Đăng nhập với Google thành công!')
+        } else {
+          // CLIENT không được phép vào dashboard
+          navigate('/')
+          toast.success('Đăng nhập với Google thành công!')
+        }
+      }
+    } catch {
+      toast.error('Đăng nhập với Google thất bại!')
+    }
+  }
+
+  const handleGoogleError = () => {
+    toast.error('Đăng nhập với Google thất bại!')
+  }
+
+  return (
+    <div className="w-full">
+      <GoogleLogin
+        onSuccess={handleGoogleSuccess}
+        onError={handleGoogleError}
+        useOneTap={false}
+        theme="outline"
+        size="large"
+        width="100%"
+        text="signin_with"
+        shape="rectangular"
+      />
+    </div>
+  )
+}

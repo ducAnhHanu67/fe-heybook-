@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import {
   Pagination,
   PaginationContent,
@@ -39,8 +32,7 @@ export default function BookGenres() {
   const currentPage = query.get('page') || DEFAULT_PAGE
 
   const fetchBookGenres = async (page = currentPage, search = searchTerm) => {
-    const searchPath =
-      search === '' ? `?page=${page}` : `?page=${page}&search=${search}`
+    const searchPath = search === '' ? `?page=${page}` : `?page=${page}&search=${search}`
     const data = await getBookGenresAPI(searchPath)
     setBookGenres(data)
     isLoading(false)
@@ -111,18 +103,14 @@ export default function BookGenres() {
                     <TableHead>Tên thể loại</TableHead>
                     <TableHead className="w-[45px]">Xem</TableHead>
                     <TableHead className="w-[45px]">Sửa</TableHead>
-                    <TableHead className="w-[50px] rounded-tr-md">
-                      Xóa
-                    </TableHead>
+                    <TableHead className="w-[50px] rounded-tr-md">Xóa</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {bookGenres.data.map((item, index) => (
                     <TableRow key={item.id}>
                       <TableCell className="px-3 font-medium">
-                        {(Number(currentPage) - 1) * DEFAULT_ITEMS_PER_PAGE +
-                          index +
-                          1}
+                        {(Number(currentPage) - 1) * DEFAULT_ITEMS_PER_PAGE + index + 1}
                       </TableCell>
                       <TableCell>{item.name}</TableCell>
 
@@ -133,18 +121,12 @@ export default function BookGenres() {
 
                       {/* Update */}
                       <TableCell>
-                        <UpdateDialog
-                          bookGenre={item}
-                          fetchData={fetchDataAfterCreateOrUpdate}
-                        />
+                        <UpdateDialog bookGenre={item} fetchData={fetchDataAfterCreateOrUpdate} />
                       </TableCell>
 
                       {/* Delete */}
                       <TableCell>
-                        <DeleteDialog
-                          bookGenreId={item.id}
-                          fetchData={fetchDataAfterDelete}
-                        />
+                        <DeleteDialog bookGenreId={item.id} fetchData={fetchDataAfterDelete} />
                       </TableCell>
                     </TableRow>
                   ))}
@@ -158,47 +140,34 @@ export default function BookGenres() {
                 <PaginationContent>
                   {/* Pagination Previous */}
                   <PaginationItem>
-                    <Link
-                      to={`${location.pathname}?page=${Math.max(1, Number(currentPage) - 1)}`}
-                    >
+                    <Link to={`${location.pathname}?page=${Math.max(1, Number(currentPage) - 1)}`}>
                       <PaginationPrevious />
                     </Link>
                   </PaginationItem>
 
                   {/* Pagination Number */}
-                  {Array.from(
-                    { length: Math.min(totalPages - 1, 6) },
-                    (_, index) => (
-                      <PaginationItem key={index}>
-                        <Link
-                          className=""
-                          to={`${location.pathname}?page=${index + 1}`}
+                  {Array.from({ length: Math.min(totalPages - 1, 6) }, (_, index) => (
+                    <PaginationItem key={index}>
+                      <Link className="" to={`${location.pathname}?page=${index + 1}`}>
+                        <PaginationLink
+                          isActive={
+                            query.get('page') === String(index + 1) ||
+                            (query.get('page') === null && index === 0)
+                          }
                         >
-                          <PaginationLink
-                            isActive={
-                              query.get('page') === String(index + 1) ||
-                              (query.get('page') === null && index === 0)
-                            }
-                          >
-                            {index + 1}
-                          </PaginationLink>
-                        </Link>
-                      </PaginationItem>
-                    )
-                  )}
+                          {index + 1}
+                        </PaginationLink>
+                      </Link>
+                    </PaginationItem>
+                  ))}
                   {totalPages > 7 && (
                     <PaginationItem>
                       <PaginationEllipsis />
                     </PaginationItem>
                   )}
                   <PaginationItem key={totalPages}>
-                    <Link
-                      className=""
-                      to={`${location.pathname}?page=${totalPages}`}
-                    >
-                      <PaginationLink
-                        isActive={query.get('page') === String(totalPages)}
-                      >
+                    <Link className="" to={`${location.pathname}?page=${totalPages}`}>
+                      <PaginationLink isActive={query.get('page') === String(totalPages)}>
                         {totalPages}
                       </PaginationLink>
                     </Link>
@@ -206,9 +175,7 @@ export default function BookGenres() {
 
                   {/* Pagination Next */}
                   <PaginationItem>
-                    <Link
-                      to={`${location.pathname}?page=${Math.min(totalPages, Number(currentPage) + 1)}`}
-                    >
+                    <Link to={`${location.pathname}?page=${Math.min(totalPages, Number(currentPage) + 1)}`}>
                       <PaginationNext />
                     </Link>
                   </PaginationItem>

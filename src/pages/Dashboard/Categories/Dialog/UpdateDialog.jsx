@@ -68,9 +68,7 @@ export function UpdateDialog({ category, getCategories }) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Sửa danh mục</DialogTitle>
-          <DialogDescription>
-            Thay đổi thông tin danh mục bạn muốn sửa.
-          </DialogDescription>
+          <DialogDescription>Thay đổi thông tin danh mục bạn muốn sửa.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(updateCategory)}>
