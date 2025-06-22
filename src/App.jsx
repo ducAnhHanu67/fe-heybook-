@@ -1,25 +1,9 @@
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 
 import AuthPage from './pages/Auth/AuthPage'
 import Dashboard from './pages/Dashboard/Dashboard'
 import Client from './pages/Client/Client'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser } from './redux/userSlice'
-import { usePermission } from './hooks/usePermissions'
-import { permissions } from './config/rbacConfig'
-
-const ProtectedRoute = ({ requirePermission }) => {
-  const currentUser = useSelector(selectCurrentUser)
-  const { hasPermission } = usePermission(currentUser?.role)
-
-  if (!currentUser) return <Navigate to="/login" replace />
-  if (requirePermission && !hasPermission(requirePermission)) {
-    // Redirect về "/" thay vì "/client"
-    return <Navigate to="/" replace />
-  }
-
-  return <Outlet />
-}
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
@@ -27,8 +11,8 @@ function App() {
       {/* ✅ Trang / là Client luôn */}
       <Route path="/*" element={<Client />} />
 
-      {/* ✅ Dashboard chỉ dành cho admin */}
-      <Route element={<ProtectedRoute requirePermission={permissions.VIEW_ADMIN} />}>
+      {/* ✅ Dashboard chỉ dành cho ADMIN và USER */}
+      <Route element={<ProtectedRoute requireAdminAccess={true} />}>
         <Route path="/dashboard/*" element={<Dashboard />} />
       </Route>
 

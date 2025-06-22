@@ -41,8 +41,8 @@ export default function DeleteDialog({ bookGenreId, fetchData }) {
         <DialogHeader>
           <DialogTitle>Bạn có chắc chắn muốn xóa thể loại này?</DialogTitle>
           <DialogDescription>
-            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn dữ
-            liệu của bạn khỏi cơ sở dữ liệu.
+            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn dữ liệu của bạn khỏi cơ sở dữ
+            liệu.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-1">
@@ -53,12 +53,7 @@ export default function DeleteDialog({ bookGenreId, fetchData }) {
           >
             Hủy
           </Button>
-          <Button
-            variant="destructive"
-            type="button"
-            className="w-25"
-            onClick={() => deleteBookGenre()}
-          >
+          <Button variant="destructive" type="button" className="w-25" onClick={() => deleteBookGenre()}>
             Xác nhận
           </Button>
         </DialogFooter>

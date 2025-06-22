@@ -41,8 +41,8 @@ export function DeleteDialog({ categoryId, getCategories }) {
         <DialogHeader>
           <DialogTitle>Bạn có chắc chắn muốn xóa danh mục này?</DialogTitle>
           <DialogDescription>
-            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn dữ
-            liệu của bạn khỏi cơ sở dữ liệu.
+            Không thể hoàn tác hành động này. Thao tác này sẽ xóa vĩnh viễn dữ liệu của bạn khỏi cơ sở dữ
+            liệu.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="mt-1">
@@ -53,12 +53,7 @@ export function DeleteDialog({ categoryId, getCategories }) {
           >
             Hủy
           </Button>
-          <Button
-            variant="destructive"
-            type="button"
-            className="w-25"
-            onClick={() => deleteCategory()}
-          >
+          <Button variant="destructive" type="button" className="w-25" onClick={() => deleteCategory()}>
             Xác nhận
           </Button>
         </DialogFooter>

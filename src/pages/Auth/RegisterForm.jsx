@@ -33,6 +33,7 @@ export function RegisterForm() {
         pending: 'Đang đăng ký...'
       })
       .then((user) => {
+        toast.success('Đăng ký thành công!')
         navigate(`/login?registeredEmail=${user.email}`)
       })
   }

@@ -3,11 +3,12 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { User, Lock, ShoppingBag } from 'lucide-react'
+import { User, Lock, ShoppingBag, MapPin } from 'lucide-react'
 import { selectCurrentUser } from '@/redux/userSlice'
 import PersonalInfo from './PersonalInfo'
 import ChangePassword from './ChangePassword'
 import MyOrders from './MyOrders'
+import AddressBook from './AddressBook'
 
 export default function Profile() {
   const currentUser = useSelector(selectCurrentUser)
@@ -28,6 +29,11 @@ export default function Profile() {
       path: '/profile/orders',
       label: 'Đơn hàng của tôi',
       icon: ShoppingBag
+    },
+    {
+      path: '/profile/addresses',
+      label: 'Sổ địa chỉ',
+      icon: MapPin
     }
   ]
 
@@ -94,6 +100,7 @@ export default function Profile() {
             <Route path="/" element={<PersonalInfo />} />
             <Route path="/change-password" element={<ChangePassword />} />
             <Route path="/orders" element={<MyOrders />} />
+            <Route path="/addresses" element={<AddressBook />} />
           </Routes>
         </div>
       </div>

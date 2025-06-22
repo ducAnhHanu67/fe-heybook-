@@ -42,9 +42,7 @@ export function CreateDialog({ getCategories }) {
           setOpen(false)
         }
       })
-      .catch((err) =>
-        toast.error(err.response?.data?.message || 'Có lỗi xảy ra!')
-      )
+      .catch((err) => toast.error(err.response?.data?.message || 'Có lỗi xảy ra!'))
   }
 
   const handleOpenChange = (isOpen) => {
@@ -65,9 +63,7 @@ export function CreateDialog({ getCategories }) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Thêm danh mục</DialogTitle>
-          <DialogDescription>
-            Nhập tên danh mục bạn muốn thêm vào danh sách.
-          </DialogDescription>
+          <DialogDescription>Nhập tên danh mục bạn muốn thêm vào danh sách.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(createCategory)}>

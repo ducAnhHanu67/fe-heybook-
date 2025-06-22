@@ -66,27 +66,27 @@ export default function Users() {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-    case 'ADMIN':
-      return 'bg-red-100 text-red-800 hover:bg-red-100'
-    case 'USER':
-      return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
-    case 'CLIENT':
-      return 'bg-green-100 text-green-800 hover:bg-green-100'
-    default:
-      return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
+      case 'ADMIN':
+        return 'bg-red-100 text-red-800 hover:bg-red-100'
+      case 'USER':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-100'
+      case 'CLIENT':
+        return 'bg-green-100 text-green-800 hover:bg-green-100'
+      default:
+        return 'bg-gray-100 text-gray-800 hover:bg-gray-100'
     }
   }
 
   const getRoleDisplayName = (role) => {
     switch (role) {
-    case 'ADMIN':
-      return 'Quản trị viên'
-    case 'USER':
-      return 'Nhân viên'
-    case 'CLIENT':
-      return 'Khách hàng'
-    default:
-      return 'Không xác định'
+      case 'ADMIN':
+        return 'Quản trị viên'
+      case 'USER':
+        return 'Nhân viên'
+      case 'CLIENT':
+        return 'Khách hàng'
+      default:
+        return 'Không xác định'
     }
   }
 

@@ -95,7 +95,7 @@ export function CreateDialog({ getUsers }) {
     setIsLoading(true)
     try {
       let avatarUrl = ''
-      
+
       // Upload avatar nếu có file được chọn
       if (avatarFile) {
         setIsUploading(true)
@@ -153,7 +153,8 @@ export function CreateDialog({ getUsers }) {
         <DialogHeader>
           <DialogTitle>Thêm người dùng mới</DialogTitle>
           <DialogDescription>Nhập thông tin để tạo người dùng mới. Nhấn lưu khi hoàn tất.</DialogDescription>
-        </DialogHeader>        <form onSubmit={handleSubmit(createUser)}>
+        </DialogHeader>{' '}
+        <form onSubmit={handleSubmit(createUser)}>
           <div className="grid gap-4 py-4">
             {/* Tên người dùng */}
             <div className="flex flex-col gap-1.5">
@@ -186,9 +187,7 @@ export function CreateDialog({ getUsers }) {
 
             {/* Địa chỉ */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="address">
-                Địa chỉ
-              </Label>
+              <Label htmlFor="address">Địa chỉ</Label>
               <Input
                 id="address"
                 type="text"
@@ -216,9 +215,7 @@ export function CreateDialog({ getUsers }) {
 
             {/* Avatar */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="avatar">
-                Avatar
-              </Label>
+              <Label htmlFor="avatar">Avatar</Label>
               <Input
                 type="file"
                 id="avatar"
@@ -234,7 +231,7 @@ export function CreateDialog({ getUsers }) {
                     <img
                       src={avatarPreviewUrl}
                       alt="Avatar preview"
-                      className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+                      className="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
                     />
                   </div>
                   <Button
@@ -244,7 +241,7 @@ export function CreateDialog({ getUsers }) {
                     onClick={removeAvatar}
                     className="text-red-600 hover:text-red-700"
                   >
-                    <X className="h-4 w-4 mr-1" />
+                    <X className="mr-1 h-4 w-4" />
                     Xóa ảnh
                   </Button>
                 </div>
@@ -277,22 +274,14 @@ export function CreateDialog({ getUsers }) {
 
             {/* Trạng thái hoạt động */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="isActive">
-                Trạng thái hoạt động
-              </Label>
+              <Label htmlFor="isActive">Trạng thái hoạt động</Label>
               <Controller
                 name="isActive"
                 control={control}
                 render={({ field }) => (
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isActive"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <Label htmlFor="isActive">
-                      {field.value ? 'Hoạt động' : 'Không hoạt động'}
-                    </Label>
+                    <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
+                    <Label htmlFor="isActive">{field.value ? 'Hoạt động' : 'Không hoạt động'}</Label>
                   </div>
                 )}
               />

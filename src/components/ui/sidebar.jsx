@@ -8,20 +8,9 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle
-} from '@/components/ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state'
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -80,10 +69,7 @@ function SidebarProvider({
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
     const handleKeyDown = (event) => {
-      if (
-        event.key === SIDEBAR_KEYBOARD_SHORTCUT &&
-        (event.metaKey || event.ctrlKey)
-      ) {
+      if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
         event.preventDefault()
         toggleSidebar()
       }
@@ -147,10 +133,7 @@ function Sidebar({
     return (
       <div
         data-slot="sidebar"
-        className={cn(
-          'bg-sidebar text-sidebar-foreground flex w-(--sidebar-width) flex-col',
-          className
-        )}
+        className={cn('bg-sidebar text-sidebar-foreground flex w-(--sidebar-width) flex-col', className)}
         {...props}
       >
         {children}
@@ -515,22 +498,12 @@ function SidebarMenuButton({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{button}</TooltipTrigger>
-      <TooltipContent
-        side="right"
-        align="center"
-        hidden={state !== 'collapsed' || isMobile}
-        {...tooltip}
-      />
+      <TooltipContent side="right" align="center" hidden={state !== 'collapsed' || isMobile} {...tooltip} />
     </Tooltip>
   )
 }
 
-function SidebarMenuAction({
-  className,
-  asChild = false,
-  showOnHover = false,
-  ...props
-}) {
+function SidebarMenuAction({ className, asChild = false, showOnHover = false, ...props }) {
   const Comp = asChild ? Slot : 'button'
 
   return (
@@ -586,12 +559,7 @@ function SidebarMenuSkeleton({ className, showIcon = false, ...props }) {
       className={cn('flex h-8 items-center gap-2 rounded-md px-2', className)}
       {...props}
     >
-      {showIcon && (
-        <Skeleton
-          className="size-4 rounded-md"
-          data-sidebar="menu-skeleton-icon"
-        />
-      )}
+      {showIcon && <Skeleton className="size-4 rounded-md" data-sidebar="menu-skeleton-icon" />}
       <Skeleton
         className="h-4 max-w-(--skeleton-width) flex-1"
         data-sidebar="menu-skeleton-text"
@@ -629,13 +597,7 @@ function SidebarMenuSubItem({ className, ...props }) {
   )
 }
 
-function SidebarMenuSubButton({
-  asChild = false,
-  size = 'md',
-  isActive = false,
-  className,
-  ...props
-}) {
+function SidebarMenuSubButton({ asChild = false, size = 'md', isActive = false, className, ...props }) {
   const Comp = asChild ? Slot : 'a'
 
   return (

@@ -35,3 +35,15 @@ export const formatDate = (dateString) => {
     minute: '2-digit'
   })
 }
+
+// Format price to Vietnamese locale
+export const formatPrice = (price) => {
+  if (!price && price !== 0) return '0'
+  return new Intl.NumberFormat('vi-VN').format(price)
+}
+
+// Format price with currency symbol
+export const formatPriceWithCurrency = (price) => {
+  if (!price && price !== 0) return '0đ'
+  return `${formatPrice(price)}đ`
+}

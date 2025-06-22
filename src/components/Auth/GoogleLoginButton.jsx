@@ -14,9 +14,16 @@ export function GoogleLoginButton() {
       const result = await dispatch(googleLoginUserAPI(credentialResponse.credential))
 
       if (!result.error) {
-        // Navigate to dashboard on successful login
-        navigate('/dashboard')
-        toast.success('Đăng nhập với Google thành công!')
+        const user = result.payload
+        // Chỉ cho phép ADMIN hoặc USER truy cập dashboard
+        if (user.role === 'ADMIN' || user.role === 'USER') {
+          navigate('/dashboard')
+          toast.success('Đăng nhập với Google thành công!')
+        } else {
+          // CLIENT không được phép vào dashboard
+          navigate('/')
+          toast.success('Đăng nhập với Google thành công!')
+        }
       }
     } catch {
       toast.error('Đăng nhập với Google thất bại!')

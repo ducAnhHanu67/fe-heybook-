@@ -1,8 +1,20 @@
-import { Star } from 'lucide-react'
+import { Star, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { getProductsAPI } from '@/apis'
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { searchAndFilterProductsAPI } from '@/apis'
+import { useEffect, useState, useCallback } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { setSearchQuery, clearSearchQuery, selectSearchQuery } from '@/redux/searchSlice'
+import ProductFilter from '@/components/ProductFilter/ProductFilter'
+import AddToCartButton from '@/components/AddToCartButton'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious
+} from '@/components/ui/pagination'
 
 function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price)
@@ -21,64 +33,283 @@ function StarRating({ rating }) {
   )
 }
 
-export default function Home() {
+export default function ProductList() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [products, setProducts] = useState({ data: [], count: 0 })
-  console.log(products)
+  const [loading, setLoading] = useState(false)
+  const [filters, setFilters] = useState({})
+  const searchQuery = useSelector(selectSearchQuery)
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 12
+
+  const totalPages = Math.ceil(products.count / itemsPerPage)
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      const data = await getProductsAPI()
-      setProducts(data)
+    const urlFilters = {}
+    for (const [key, value] of searchParams.entries()) {
+      if (value && key !== 'search') {
+        urlFilters[key] = value
+      }
     }
-    fetchProduct()
-  }, [])
+    setFilters(urlFilters)
+  }, [searchParams])
+
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search')
+    if (searchFromUrl !== searchQuery) {
+      if (searchFromUrl) {
+        dispatch(setSearchQuery(searchFromUrl))
+      } else {
+        dispatch(clearSearchQuery())
+      }
+    }
+  }, [searchParams, searchQuery, dispatch])
+
+  const fetchProducts = useCallback(
+    async (filterParams = {}, page = 1) => {
+      setLoading(true)
+      try {
+        const searchFilters = {
+          ...filterParams,
+          page,
+          itemsPerPage
+        }
+
+        if (searchQuery && searchQuery.trim()) {
+          searchFilters.search = searchQuery.trim()
+        }
+
+        const data = await searchAndFilterProductsAPI(searchFilters)
+        setProducts(data)
+      } catch {
+        setProducts({ data: [], count: 0 })
+      } finally {
+        setLoading(false)
+      }
+    },
+    [searchQuery]
+  )
+
+  useEffect(() => {
+    fetchProducts(filters, currentPage)
+  }, [filters, currentPage, fetchProducts])
+
+  const handleFiltersChange = (newFilters) => {
+    setFilters(newFilters)
+    setCurrentPage(1)
+
+    const params = new URLSearchParams(searchParams)
+
+    const filtersToKeep = ['search']
+    const paramsToDelete = []
+    for (const [key] of params.entries()) {
+      if (!filtersToKeep.includes(key)) {
+        paramsToDelete.push(key)
+      }
+    }
+    paramsToDelete.forEach((key) => params.delete(key))
+
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== '' && value !== null && value !== undefined) {
+        params.set(key, value)
+      }
+    })
+
+    setSearchParams(params)
+  }
+
+  const handleClearFilters = () => {
+    setFilters({})
+    setCurrentPage(1)
+
+    const searchParam = searchParams.get('search')
+    if (searchParam) {
+      setSearchParams({ search: searchParam })
+    } else {
+      setSearchParams({})
+    }
+  }
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const calculateFinalPrice = (price, discount) => {
+    return (price * (100 - discount)) / 100
+  }
 
   return (
-    <div className="container mx-auto px-30 py-8 pl-100">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {products?.data?.map((product) => (
-          <div
-            key={product.id}
-            onClick={() => navigate(`/product/${product.id}`)}
-            className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
-          >
-            {/* product Cover */}
-            <div className="relative p-2">
-              {/* {product.isNew && (
-                <Badge className="absolute top-2 left-2 z-10 bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600">
-                  Mới
-                </Badge>
-              )} */}
-              <div className="relative">
-                <img className="object-cover" src={product.coverImageUrl} alt="Ảnh sản phẩm" />
-              </div>
-            </div>
-
-            {/* product Details */}
-            <div className="p-4 pt-0">
-              <h3 className="mb-3 line-clamp-2 min-h-[2.5rem] text-sm font-medium text-gray-900">
-                {product.name}
-              </h3>
-
-              {/* Pricing */}
-              <div className="mb-2 space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-bold text-red-600">
-                    {formatPrice(product.price - (product.price * product.discount) / 100)}đ
-                  </span>
-                  <Badge variant="destructive" className="px-1.5 py-0.5 text-xs">
-                    -{formatPrice(product.discount)}%
-                  </Badge>
-                </div>
-                <div className="text-sm text-gray-400 line-through">{formatPrice(product.price)} đ</div>
-              </div>
-
-              {/* Star Rating */}
-              <StarRating rating={product.rating} />
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        {/* Filter Sidebar */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4">
+            <ProductFilter
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              onClearFilters={handleClearFilters}
+            />
           </div>
-        ))}
+        </div>
+
+        {/* Main Content */}
+        <div className="lg:col-span-3">
+          {/* Loading State */}
+
+          {/* Results Info */}
+          {!loading && (
+            <div className="mb-4 space-y-2">
+              {searchQuery && (
+                <div className="flex items-center gap-2 text-base font-medium text-gray-900">
+                  <Search className="h-4 w-4" />
+                  <span>Kết quả tìm kiếm cho: &ldquo;{searchQuery}&rdquo;</span>
+                </div>
+              )}
+              <div className="text-sm text-gray-600">
+                Tìm thấy {products.count} sản phẩm
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      dispatch(clearSearchQuery())
+                      const newParams = new URLSearchParams(searchParams)
+                      newParams.delete('search')
+                      setSearchParams(newParams)
+                    }}
+                    className="ml-2 text-blue-600 underline hover:text-blue-800"
+                  >
+                    Xóa từ khóa tìm kiếm
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Products Grid */}
+          {!loading && (
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {products?.data?.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
+                >
+                  {/* Product Cover */}
+                  <div className="relative p-2">
+                    {product.discount > 0 && (
+                      <Badge className="absolute top-2 left-2 z-10 bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600">
+                        -{product.discount}%
+                      </Badge>
+                    )}
+                    <div className="relative">
+                      <img
+                        className="h-48 w-full rounded object-cover"
+                        src={product.coverImageUrl}
+                        alt={product.name}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="p-4 pt-0">
+                    <h3 className="mb-3 line-clamp-2 min-h-[2.5rem] text-sm font-medium text-gray-900">
+                      {product.name}
+                    </h3>
+
+                    {/* Pricing */}
+                    <div className="mb-2 space-y-1">
+                      {product.discount > 0 ? (
+                        <>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold text-red-600">
+                              {formatPrice(calculateFinalPrice(product.price, product.discount))}đ
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-400 line-through">
+                            {formatPrice(product.price)}đ
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-lg font-bold text-gray-900">{formatPrice(product.price)}đ</div>
+                      )}
+                    </div>
+
+                    {/* Star Rating */}
+                    <StarRating rating={product.rating || 0} />
+                    
+                    {/* Add to Cart Button */}
+                    <div className="mt-3">
+                      <AddToCartButton
+                        product={product}
+                        className="w-full"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && products.count === 0 && (
+            <div className="py-12 text-center">
+              <div className="mb-2 text-lg text-gray-500">Không tìm thấy sản phẩm nào</div>
+              <div className="text-sm text-gray-400">Thử thay đổi bộ lọc để tìm kiếm sản phẩm khác</div>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  {currentPage > 1 && (
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className="cursor-pointer"
+                      />
+                    </PaginationItem>
+                  )}
+
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const page = index + 1
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 2 && page <= currentPage + 2)
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => handlePageChange(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      )
+                    }
+                    return null
+                  })}
+
+                  {currentPage < totalPages && (
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className="cursor-pointer"
+                      />
+                    </PaginationItem>
+                  )}
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

@@ -27,11 +27,14 @@ const updateUserSchema = Joi.object({
     'string.empty': 'Tên người dùng không được để trống',
     'any.required': 'Tên người dùng là bắt buộc'
   }),
-  email: Joi.string().email({ tlds: { allow: false } }).required().messages({
-    'string.empty': 'Email không được để trống',
-    'string.email': 'Email không hợp lệ',
-    'any.required': 'Email là bắt buộc'
-  }),
+  email: Joi.string()
+    .email({ tlds: { allow: false } })
+    .required()
+    .messages({
+      'string.empty': 'Email không được để trống',
+      'string.email': 'Email không hợp lệ',
+      'any.required': 'Email là bắt buộc'
+    }),
   password: Joi.string().allow('').min(6).messages({
     'string.min': 'Mật khẩu phải có ít nhất 6 ký tự'
   }),
@@ -52,7 +55,7 @@ export function UpdateDialog({ user, getUsers }) {
   const [avatarFile, setAvatarFile] = useState(null)
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState('')
   const [isUploading, setIsUploading] = useState(false)
-  
+
   const {
     register,
     handleSubmit,
@@ -94,7 +97,7 @@ export function UpdateDialog({ user, getUsers }) {
     setIsLoading(true)
     try {
       let avatarUrl = data.avatar || user.avatar || ''
-      
+
       // Upload avatar mới nếu có file được chọn
       if (avatarFile) {
         setIsUploading(true)
@@ -114,7 +117,7 @@ export function UpdateDialog({ user, getUsers }) {
       if (!updateData.password || updateData.password.trim() === '') {
         delete updateData.password
       }
-      
+
       const res = await updateUserAPI(user.id, updateData)
       if (!res.error) {
         toast.success('Cập nhật người dùng thành công!')
@@ -158,9 +161,7 @@ export function UpdateDialog({ user, getUsers }) {
       <DialogContent className="overflow-y-auto sm:max-w-[750px]">
         <DialogHeader>
           <DialogTitle>Cập nhật thông tin người dùng</DialogTitle>
-          <DialogDescription>
-            Chỉnh sửa thông tin người dùng. Nhấn lưu khi hoàn tất.
-          </DialogDescription>
+          <DialogDescription>Chỉnh sửa thông tin người dùng. Nhấn lưu khi hoàn tất.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(updateUser)}>
           <div className="grid gap-4 py-4">
@@ -195,9 +196,7 @@ export function UpdateDialog({ user, getUsers }) {
 
             {/* Địa chỉ */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="address">
-                Địa chỉ
-              </Label>
+              <Label htmlFor="address">Địa chỉ</Label>
               <Input
                 id="address"
                 type="text"
@@ -210,9 +209,7 @@ export function UpdateDialog({ user, getUsers }) {
 
             {/* Mật khẩu */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="password">
-                Mật khẩu mới (để trống nếu không đổi)
-              </Label>
+              <Label htmlFor="password">Mật khẩu mới (để trống nếu không đổi)</Label>
               <Input
                 id="password"
                 type="password"
@@ -225,9 +222,7 @@ export function UpdateDialog({ user, getUsers }) {
 
             {/* Avatar */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="avatar-update">
-                Avatar
-              </Label>
+              <Label htmlFor="avatar-update">Avatar</Label>
               <Input
                 type="file"
                 id="avatar-update"
@@ -243,7 +238,7 @@ export function UpdateDialog({ user, getUsers }) {
                     <img
                       src={avatarPreviewUrl}
                       alt="Avatar preview"
-                      className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+                      className="h-20 w-20 rounded-full border-2 border-gray-200 object-cover"
                     />
                   </div>
                   {avatarFile && (
@@ -254,7 +249,7 @@ export function UpdateDialog({ user, getUsers }) {
                       onClick={removeAvatar}
                       className="text-red-600 hover:text-red-700"
                     >
-                      <X className="h-4 w-4 mr-1" />
+                      <X className="mr-1 h-4 w-4" />
                       Hủy thay đổi
                     </Button>
                   )}
@@ -288,22 +283,14 @@ export function UpdateDialog({ user, getUsers }) {
 
             {/* Trạng thái hoạt động */}
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="isActive">
-                Trạng thái hoạt động
-              </Label>
+              <Label htmlFor="isActive">Trạng thái hoạt động</Label>
               <Controller
                 name="isActive"
                 control={control}
                 render={({ field }) => (
                   <div className="flex items-center space-x-2">
-                    <Switch
-                      id="isActive"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                    <Label htmlFor="isActive">
-                      {field.value ? 'Hoạt động' : 'Không hoạt động'}
-                    </Label>
+                    <Switch id="isActive" checked={field.value} onCheckedChange={field.onChange} />
+                    <Label htmlFor="isActive">{field.value ? 'Hoạt động' : 'Không hoạt động'}</Label>
                   </div>
                 )}
               />

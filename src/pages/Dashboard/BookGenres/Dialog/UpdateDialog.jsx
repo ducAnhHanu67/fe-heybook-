@@ -63,9 +63,7 @@ export default function UpdateDialog({ bookGenre, fetchData }) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Sửa thể loại</DialogTitle>
-          <DialogDescription>
-            Thay đổi thông tin thể loại bạn muốn sửa.
-          </DialogDescription>
+          <DialogDescription>Thay đổi thông tin thể loại bạn muốn sửa.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(updateBookGenre)}>

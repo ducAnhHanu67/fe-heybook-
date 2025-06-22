@@ -11,12 +11,7 @@ function PopoverTrigger({ ...props }) {
   return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
 }
 
-function PopoverContent({
-  className,
-  align = 'center',
-  sideOffset = 4,
-  ...props
-}) {
+function PopoverContent({ className, align = 'center', sideOffset = 4, ...props }) {
   return (
     <PopoverPrimitive.Portal>
       <PopoverPrimitive.Content

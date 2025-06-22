@@ -1,29 +1,141 @@
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getProductByIdAPI } from '@/apis'
+import { getProductByIdAPI, checkUserReviewAPI } from '@/apis'
+import AddToCartButton from '@/components/AddToCartButton'
+import ReviewForm from '@/components/ReviewForm'
+import ReviewList from '@/components/ReviewList'
+import RatingStats from '@/components/RatingStats'
+import { formatPriceWithCurrency } from '@/utils/formatters'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '@/redux/userSlice'
 
-import { Star, Minus, Plus, ShoppingCart, Truck, CreditCard } from 'lucide-react'
+import { Star, Minus, Plus, Truck, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { toast } from 'react-toastify'
+import { useAuthCheck } from '@/hooks/useAuthGuard'
 
 export default function ProductDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
+  const { checkAuth } = useAuthCheck({
+    message: 'Vui lòng đăng nhập để mua hàng!'
+  })
   const [product, setProduct] = useState(null)
-
+  const [loading, setLoading] = useState(true)
   const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const [userReview, setUserReview] = useState(null)
+  const [showReviewForm, setShowReviewForm] = useState(false)
+  const [totalReviews, setTotalReviews] = useState(0)
+
+  const currentUser = useSelector(selectCurrentUser)
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1)
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1))
+  const resetQuantity = () => setQuantity(1)
+
+  const handleBuyNow = () => {
+    // Kiểm tra đăng nhập trước khi mua ngay
+    checkAuth(() => {
+      // Logic cho mua ngay (có thể redirect đến checkout với sản phẩm cụ thể)
+      toast.info('Chức năng mua ngay đang được phát triển!')
+    })
+  }
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const data = await getProductByIdAPI(id)
-      setProduct(data)
+      try {
+        setLoading(true)
+        const data = await getProductByIdAPI(id)
+        setProduct(data)
+      } catch {
+        // console.error('Error fetching product:', error)
+        toast.error('Không thể tải thông tin sản phẩm!')
+      } finally {
+        setLoading(false)
+      }
     }
-    fetchProduct()
+    if (id) {
+      fetchProduct()
+    }
   }, [id])
-  console.log(product)
+
+  // Fetch user review if logged in
+  useEffect(() => {
+    const fetchUserReview = async () => {
+      if (currentUser && id) {
+        try {
+          const response = await checkUserReviewAPI(id)
+          setUserReview(response.data)
+        } catch {
+          // User hasn't reviewed this product yet
+          setUserReview(null)
+        }
+      }
+    }
+    fetchUserReview()
+  }, [currentUser, id])
+
+  const handleReviewSuccess = () => {
+    setShowReviewForm(false)
+    // Refresh user review
+    if (currentUser) {
+      checkUserReviewAPI(id)
+        .then((response) => {
+          setUserReview(response.data)
+        })
+        .catch(() => {
+          setUserReview(null)
+        })
+    }
+  }
+
+  const handleWriteReview = () => {
+    checkAuth(() => {
+      setShowReviewForm(true)
+    })
+  }
+
+  const handleReviewsUpdate = (count) => {
+    setTotalReviews(count)
+  }
+
+  const handleUserReviewDeleted = () => {
+    // Khi user xóa đánh giá của chính mình, reset userReview
+    setUserReview(null)
+    setTotalReviews((prev) => prev - 1)
+  }
+
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl bg-gray-50 p-4">
+        <div className="animate-pulse rounded-lg bg-white p-6 shadow-sm">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <div className="h-96 rounded-lg bg-gray-200"></div>
+            <div className="space-y-4">
+              <div className="h-8 w-3/4 rounded bg-gray-200"></div>
+              <div className="h-4 w-1/2 rounded bg-gray-200"></div>
+              <div className="h-6 w-1/3 rounded bg-gray-200"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!product) {
+    return (
+      <div className="mx-auto max-w-7xl bg-gray-50 p-4">
+        <div className="rounded-lg bg-white p-6 text-center shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-900">Không tìm thấy sản phẩm</h2>
+          <p className="mt-2 text-gray-600">Sản phẩm này có thể đã bị xóa hoặc không tồn tại.</p>
+        </div>
+      </div>
+    )
+  }
+
+  const finalPrice = (product.price * (100 - product.discount)) / 100
 
   return (
     <div className="mx-auto max-w-7xl bg-gray-50 p-4">
@@ -33,55 +145,61 @@ export default function ProductDetail() {
           {/* Main Image */}
           <div className="relative">
             <img
-              src="/book-cover.png"
-              alt="Hồ Điệp Va Kinh Ngư"
+              src={product.coverImageUrl || '/book-cover.png'}
+              alt={product.name}
               width={400}
               height={600}
               className="w-full rounded-lg shadow-lg"
             />
             {/* Discount Badge */}
-            <div className="absolute top-4 left-4 rounded-md bg-orange-500 px-3 py-1 text-sm font-bold text-white">
-              FHSSBDT5
-              <br />
-              <span className="text-lg">GIẢM 12%</span>
-              <br />
-              <span className="text-xs">Tối Đa 30k Cho Đơn 119k</span>
-            </div>
-            {/* Fahasa.com watermark */}
-            <div className="absolute top-4 right-4 rounded bg-red-600 px-2 py-1 text-xs text-white">
-              Fahasa.com
-            </div>
+            {product.discount > 0 && (
+              <div className="absolute top-4 left-4 rounded-md bg-orange-500 px-3 py-1 text-sm font-bold text-white">
+                <span className="text-lg">GIẢM {product.discount}%</span>
+              </div>
+            )}
           </div>
 
           {/* Thumbnail Images */}
           <div className="flex gap-2">
-            {/* {product?.map((thumb, index) => (
-              <div
-                key={index}
-                className={`relative h-20 w-16 cursor-pointer rounded border-2 ${
-                  selectedImage === index ? 'border-blue-500' : 'border-gray-200'
-                }`}
-                onClick={() => setSelectedImage(index)}
-              >
-                <img
-                  src={product.coverImageUrl}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="rounded object-cover"
-                />
+            {product.productImages && product.productImages.length > 0 ? (
+              product.productImages.map((image, index) => (
+                <div
+                  key={index}
+                  className="relative h-20 w-16 cursor-pointer rounded border-2 border-gray-200"
+                >
+                  <img
+                    src={image.imageUrl}
+                    alt={`${product.name} ${index + 1}`}
+                    className="h-full w-full rounded object-cover"
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="flex h-20 w-16 items-center justify-center rounded bg-gray-200 text-sm text-gray-500">
+                No Images
               </div>
-            ))} */}
-            <div className="flex h-20 w-16 items-center justify-center rounded bg-gray-800 text-sm font-bold text-white">
-              +8
-            </div>
+            )}
           </div>
 
           {/* Action Buttons */}
           <div className="mt-6 flex gap-3">
-            <Button variant="outline" className="flex-1 border-red-600 text-red-600 hover:bg-red-50">
-              <ShoppingCart className="mr-2 h-4 w-4" />
-              Thêm vào giỏ hàng
+            {product && (
+              <AddToCartButton
+                product={{
+                  id: product.id,
+                  ...product
+                }}
+                quantity={quantity}
+                variant="outline"
+                size="default"
+                className="flex-1 border-red-600 text-red-600 hover:bg-red-50"
+                showQuantitySelector={false}
+                onAddToCartSuccess={resetQuantity}
+              />
+            )}
+            <Button className="flex-1 bg-red-600 hover:bg-red-700" onClick={handleBuyNow}>
+              Mua ngay
             </Button>
-            <Button className="flex-1 bg-red-600 hover:bg-red-700">Mua ngay</Button>
           </div>
         </div>
 
@@ -89,50 +207,103 @@ export default function ProductDetail() {
         <div className="space-y-4">
           {/* Title and Badge */}
           <div className="flex items-start gap-2">
-            <Badge className="bg-orange-500 text-white">Xu hướng</Badge>
-            <h1 className="text-2xl font-bold text-gray-900">Hồ Điệp Va Kinh Ngư</h1>
+            {product.discount > 0 && <Badge className="bg-orange-500 text-white">Giảm giá</Badge>}
+            <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
           </div>
 
           {/* Product Info */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-gray-600">Nhà cung cấp:</span>
-              <span className="ml-2 text-blue-600">Đinh Tị</span>
+              <span className="text-gray-600">Danh mục:</span>
+              <span className="ml-2">{product.category?.name || 'Chưa phân loại'}</span>
             </div>
-            <div>
-              <span className="text-gray-600">Tác giả:</span>
-              <span className="ml-2">Tuệ Kiên</span>
-            </div>
-            <div>
-              <span className="text-gray-600">Nhà xuất bản:</span>
-              <span className="ml-2">Văn Học</span>
-            </div>
-            <div>
-              <span className="text-gray-600">Hình thức bìa:</span>
-              <span className="ml-2">Bìa Mềm</span>
-            </div>
+            {product.bookDetail && (
+              <>
+                <div>
+                  <span className="text-gray-600">Tác giả:</span>
+                  <span className="ml-2">{product.bookDetail.author}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Nhà xuất bản:</span>
+                  <span className="ml-2">{product.bookDetail.publisher}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Ngôn ngữ:</span>
+                  <span className="ml-2">{product.bookDetail.language}</span>
+                </div>
+              </>
+            )}
+            {product.stationeryDetail && (
+              <>
+                <div>
+                  <span className="text-gray-600">Thương hiệu:</span>
+                  <span className="ml-2">{product.stationeryDetail.brand}</span>
+                </div>
+                <div>
+                  <span className="text-gray-600">Nơi sản xuất:</span>
+                  <span className="ml-2">{product.stationeryDetail.placeProduction}</span>
+                </div>
+                {product.stationeryDetail.color && (
+                  <div>
+                    <span className="text-gray-600">Màu sắc:</span>
+                    <span className="ml-2">{product.stationeryDetail.color}</span>
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* Rating and Sales */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-4 w-4 text-gray-300" />
+                <Star
+                  key={star}
+                  className={`h-4 w-4 ${star <= Math.round(product.avgRating || 0) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`}
+                />
               ))}
-              <span className="ml-1 text-sm text-orange-500">(0 đánh giá)</span>
+              <span className="ml-1 text-sm text-orange-500">({product.totalReviews || 0} đánh giá)</span>
             </div>
             <span className="text-sm text-gray-600">Đã bán 799</span>
           </div>
 
           {/* Price */}
           <div className="flex items-center gap-3">
-            <span className="text-3xl font-bold text-red-600">111.600 ₫</span>
-            <span className="text-gray-400 line-through">155.000 ₫</span>
-            <Badge className="bg-red-600 text-white">-28%</Badge>
+            {product.discount > 0 ? (
+              <>
+                <span className="text-3xl font-bold text-red-600">
+                  {formatPriceWithCurrency((product.price * (100 - product.discount)) / 100)}
+                </span>
+                <span className="text-gray-400 line-through">{formatPriceWithCurrency(product.price)}</span>
+                <Badge className="bg-red-600 text-white">-{product.discount}%</Badge>
+              </>
+            ) : (
+              <span className="text-3xl font-bold text-gray-900">
+                {formatPriceWithCurrency(product.price)}
+              </span>
+            )}
           </div>
 
           {/* Stock Info */}
-          <div className="rounded bg-blue-50 px-3 py-2 text-sm text-blue-700">72 nhà sách còn hàng</div>
+          <div className="rounded bg-blue-50 px-3 py-2 text-sm text-blue-700">
+            {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
+          </div>
+
+          {/* Product Description */}
+          {product.description && (
+            <div className="space-y-2">
+              <h3 className="font-semibold">Mô tả sản phẩm</h3>
+              <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
+            </div>
+          )}
+
+          {/* Product Dimensions */}
+          {product.dimension && (
+            <div className="text-sm">
+              <span className="font-medium text-gray-700">Kích thước: </span>
+              <span className="text-gray-600">{product.dimension}</span>
+            </div>
+          )}
 
           {/* Shipping Info */}
           <div className="space-y-3 rounded-lg border p-4">
@@ -200,6 +371,56 @@ export default function ProductDetail() {
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="mx-auto mt-8 max-w-7xl bg-gray-50 p-4">
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Left Column - Rating Stats */}
+          <div className="lg:col-span-1">
+            <RatingStats productId={id} />
+
+            {/* Write Review Button */}
+            {currentUser && !userReview && !showReviewForm && (
+              <div className="mt-4">
+                <Button onClick={handleWriteReview} className="w-full">
+                  Viết đánh giá
+                </Button>
+              </div>
+            )}
+
+            {/* Edit Review Button */}
+            {currentUser && userReview && !showReviewForm && (
+              <div className="mt-4">
+                <Button onClick={() => setShowReviewForm(true)} className="w-full">
+                  Chỉnh sửa đánh giá
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Column - Reviews List or Form */}
+          <div className="lg:col-span-2">
+            {showReviewForm ? (
+              <ReviewForm
+                productId={id}
+                existingReview={userReview}
+                onSuccess={handleReviewSuccess}
+                onCancel={() => setShowReviewForm(false)}
+              />
+            ) : (
+              <div>
+                <h3 className="mb-4 text-xl font-semibold">Đánh giá sản phẩm ({totalReviews})</h3>
+                <ReviewList
+                  productId={id}
+                  onReviewsUpdate={handleReviewsUpdate}
+                  onUserReviewDeleted={handleUserReviewDeleted}
+                  currentUserId={currentUser?.id}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

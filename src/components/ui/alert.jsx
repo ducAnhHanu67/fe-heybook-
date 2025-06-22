@@ -20,12 +20,7 @@ const alertVariants = cva(
 
 function Alert({ className, variant, ...props }) {
   return (
-    <div
-      data-slot="alert"
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
-      {...props}
-    />
+    <div data-slot="alert" role="alert" className={cn(alertVariants({ variant }), className)} {...props} />
   )
 }
 
@@ -33,10 +28,7 @@ function AlertTitle({ className, ...props }) {
   return (
     <div
       data-slot="alert-title"
-      className={cn(
-        'col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight',
-        className
-      )}
+      className={cn('col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight', className)}
       {...props}
     />
   )
