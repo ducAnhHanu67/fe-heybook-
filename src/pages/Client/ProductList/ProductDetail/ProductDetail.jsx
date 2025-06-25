@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { getProductByIdAPI, checkUserReviewAPI } from '@/apis'
+import { getProductByIdAPI, checkUserReviewAPI, addToCartAPI } from '@/apis'
 import AddToCartButton from '@/components/AddToCartButton'
 import ReviewForm from '@/components/ReviewForm'
 import ReviewList from '@/components/ReviewList'
@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { toast } from 'react-toastify'
 import { useAuthCheck } from '@/hooks/useAuthGuard'
+import { QueryClient, useMutation } from '@tanstack/react-query'
+import { queryClient } from '@/main'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -35,11 +37,25 @@ export default function ProductDetail() {
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1))
   const resetQuantity = () => setQuantity(1)
 
+  const paynowMutation = useMutation({
+    mutationFn: (data) => addToCartAPI(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['cart'])
+      setQuantity(1)
+      navigate('/cart')
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.message || 'Có lỗi xảy ra khi thêm vào giỏ hàng!')
+    }
+  })
+
   const handleBuyNow = () => {
     // Kiểm tra đăng nhập trước khi mua ngay
     checkAuth(() => {
-      // Logic cho mua ngay (có thể redirect đến checkout với sản phẩm cụ thể)
-      toast.info('Chức năng mua ngay đang được phát triển!')
+      paynowMutation.mutate({
+        productId: product.id,
+        quantity
+      })
     })
   }
 

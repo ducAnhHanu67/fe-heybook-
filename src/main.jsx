@@ -17,7 +17,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 const persistor = persistStore(store)
 
 // Create a client
-const queryClient = new QueryClient()
+export const queryClient = new QueryClient()
 
 // Google OAuth Client ID - you should move this to environment variables
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id'

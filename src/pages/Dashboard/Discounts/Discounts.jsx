@@ -186,9 +186,9 @@ export default function Discounts() {
                       </TableCell>
                       <TableCell>
                         <div className="font-medium">{discount.name}</div>
-                        <div className="text-muted-foreground line-clamp-1 text-sm">
+                        {/* <div className="text-muted-foreground line-clamp-1 text-sm">
                           {discount.description}
-                        </div>
+                        </div> */}
                       </TableCell>
                       <TableCell>
                         <Badge variant="outline">
