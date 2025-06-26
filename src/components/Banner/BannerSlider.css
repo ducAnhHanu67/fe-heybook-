@@ -1,0 +1,25 @@
+/* src/components/BannerSlider.css */
+.slider-wrapper {
+    display: flex;
+    gap: 10px;
+    margin: 20px;
+}
+
+.left-slider {
+    flex: 2;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.right-banners {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.right-banners img {
+    width: 100%;
+    border-radius: 8px;
+    object-fit: cover;
+}

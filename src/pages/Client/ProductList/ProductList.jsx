@@ -15,6 +15,7 @@ import {
   PaginationNext,
   PaginationPrevious
 } from '@/components/ui/pagination'
+import BannerSlider from '@/components/Banner/BannerSlider'
 
 function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price)
@@ -158,6 +159,7 @@ export default function ProductList() {
         {/* Main Content */}
         <div className="lg:col-span-3">
           {/* Loading State */}
+          <BannerSlider></BannerSlider>
 
           {/* Results Info */}
           {!loading && (
@@ -189,7 +191,7 @@ export default function ProductList() {
 
           {/* Products Grid */}
           {!loading && (
-            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {products?.data?.map((product) => (
                 <div
                   key={product.id}
@@ -238,7 +240,7 @@ export default function ProductList() {
 
                     {/* Star Rating */}
                     <StarRating rating={product.rating || 0} />
-                    
+
                     {/* Add to Cart Button */}
                     <div className="mt-3">
                       <AddToCartButton
