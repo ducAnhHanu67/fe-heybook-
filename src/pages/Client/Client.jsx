@@ -12,15 +12,18 @@ function Client() {
   return (
     <>
       <Header />
-      <Routes>
-        <Route path="/" element={<ProductList />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/thank-you" element={<ThankYou />} />
-        <Route path="/vnpay-return" element={<VNPayReturn />} />
-        <Route path="/profile/*" element={<Profile />} />
-      </Routes>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Routes>
+          <Route path="/" element={<ProductList />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/thank-you" element={<ThankYou />} />
+          <Route path="/vnpay-return" element={<VNPayReturn />} />
+          <Route path="/profile/*" element={<Profile />} />
+        </Routes>
+      </div>
+
     </>
   )
 }

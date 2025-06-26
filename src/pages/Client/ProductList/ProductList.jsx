@@ -191,7 +191,7 @@ export default function ProductList() {
 
           {/* Products Grid */}
           {!loading && (
-            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-4">
               {products?.data?.map((product) => (
                 <div
                   key={product.id}
@@ -225,7 +225,7 @@ export default function ProductList() {
                       {product.discount > 0 ? (
                         <>
                           <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-red-600">
+                            <span className="text-lg font-bold " style={{ color: '#c92127' }}>
                               {formatPrice(calculateFinalPrice(product.price, product.discount))}đ
                             </span>
                           </div>
@@ -234,26 +234,21 @@ export default function ProductList() {
                           </div>
                         </>
                       ) : (
-                        <div className="text-lg font-bold text-gray-900">{formatPrice(product.price)}đ</div>
+                        <div className="text-lg font-bold text-gray-900">
+                          {formatPrice(product.price)}đ
+                        </div>
                       )}
                     </div>
 
                     {/* Star Rating */}
                     <StarRating rating={product.rating || 0} />
 
-                    {/* Add to Cart Button */}
-                    <div className="mt-3">
-                      <AddToCartButton
-                        product={product}
-                        className="w-full"
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                    </div>
                   </div>
                 </div>
               ))}
             </div>
           )}
+
 
           {/* Empty State */}
           {!loading && products.count === 0 && (
