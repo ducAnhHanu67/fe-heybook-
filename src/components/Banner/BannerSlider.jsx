@@ -11,22 +11,35 @@ import './BannerSlider.css';
 const BannerSlider = () => {
     return (
         <div className="slider-wrapper">
-            <div className="left-slider">
+            <div className="left-slider" style={{ height: '315px', overflow: 'hidden' }}>
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
                     navigation
                     pagination={{ clickable: true }}
                     autoplay={{ delay: 3000 }}
                     loop={true}
+                    style={{ height: '100%' }}
                 >
                     <SwiperSlide>
-                        <img src="/banner1.webp" alt="banner1" />
+                        <img
+                            src="/banner1.webp"
+                            alt="banner1"
+                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                        />
                     </SwiperSlide>
                     <SwiperSlide>
-                        <img src="/banner2.webp" alt="banner2" />
+                        <img
+                            src="/banner2.webp"
+                            alt="banner2"
+                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                        />
                     </SwiperSlide>
                     <SwiperSlide>
-                        <img src="/banner3.webp" alt="banner3" />
+                        <img
+                            src="/banner3.webp"
+                            alt="banner3"
+                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
+                        />
                     </SwiperSlide>
                 </Swiper>
             </div>

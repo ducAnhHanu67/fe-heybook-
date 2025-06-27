@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logoutUserAPI, selectCurrentUser } from '@/redux/userSlice'
 import { setSearchQuery, selectSearchQuery } from '@/redux/searchSlice'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export default function Header() {
   const dispatch = useDispatch()
@@ -22,6 +22,14 @@ export default function Header() {
   const currentUser = useSelector(selectCurrentUser)
   const searchQuery = useSelector(selectSearchQuery) || ''
   const [inputValue, setInputValue] = useState('')
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+  const [selectedMainCategory, setSelectedMainCategory] = useState("Sách");
+  const categoryMenuRef = useRef(null);
+
+  const categoryData = {
+    "Sách": ["Truyện tranh", "Kinh tế", "Tiểu thuyết", "Kỹ năng sống"],
+    "Văn phòng phẩm": ["Bút", "Sổ tay", "Tẩy", "Thước kẻ", "Bìa hồ sơ"],
+  };
   useEffect(() => {
     const searchFromUrl = searchParams.get('search') || ''
 
@@ -31,6 +39,21 @@ export default function Header() {
 
     setInputValue(searchFromUrl || searchQuery)
   }, [searchParams, dispatch, searchQuery])
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      console.log(event.target, 'ducn');
+
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(event.target)) {
+        setShowCategoryMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
   const handleSearch = (e) => {
     e.preventDefault()
     if (inputValue.trim()) {
@@ -81,12 +104,46 @@ export default function Header() {
               <span className="text-xl font-bold text-red-500">HeyBook.com</span>
             </Link>
           </div>
-          <div className="ml-3 hidden items-center md:flex">
-            <Button variant="outline" className="flex items-center space-x-2 border-gray-300">
+          <div ref={categoryMenuRef} className="ml-3 hidden items-center md:flex relative">
+            <Button variant="outline"
+              className="flex items-center space-x-2 border-gray-300"
+              onClick={() => setShowCategoryMenu(!showCategoryMenu)}
+            >
               <Menu className="h-4 w-4" />
               <span className="text-sm">Danh mục</span>
               <ChevronDown className="h-4 w-4" />
             </Button>
+
+            {/* Dropdown hiển thị 2 cột */}
+            {showCategoryMenu && (
+              <div className="absolute top-full left-0 mt-2 z-50 bg-white border rounded shadow-lg flex w-[480px]">
+                {/* Cột 1: danh mục chính */}
+                <div className="w-1/2 border-r">
+                  {Object.keys(categoryData).map((cat) => (
+                    <div
+                      key={cat}
+                      className={`px-4 py-2 cursor-pointer hover:bg-red-100 ${selectedMainCategory === cat ? "bg-red-50 font-semibold" : ""
+                        }`}
+                      onMouseEnter={() => setSelectedMainCategory(cat)}
+                    >
+                      {cat}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Cột 2: danh mục phụ */}
+                <div className="w-1/2 p-4">
+                  {categoryData[selectedMainCategory].map((sub, idx) => (
+                    <div
+                      key={idx}
+                      className="py-1 px-2 hover:text-red-600 cursor-pointer text-sm"
+                    >
+                      {sub}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>{' '}
           <div className="mx-4 max-w-2xl flex-1">
             <form onSubmit={handleSearch} className="relative flex">

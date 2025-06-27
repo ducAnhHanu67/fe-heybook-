@@ -159,7 +159,6 @@ export default function ProductList() {
         {/* Main Content */}
         <div className="lg:col-span-3">
           {/* Loading State */}
-          <BannerSlider></BannerSlider>
 
           {/* Results Info */}
           {!loading && (
@@ -200,11 +199,7 @@ export default function ProductList() {
                 >
                   {/* Product Cover */}
                   <div className="relative p-2">
-                    {product.discount > 0 && (
-                      <Badge className="absolute top-2 left-2 z-10 bg-red-500 px-2 py-1 text-xs text-white hover:bg-red-600">
-                        -{product.discount}%
-                      </Badge>
-                    )}
+
                     <div className="relative">
                       <img
                         className="h-48 w-full rounded object-cover"
@@ -228,6 +223,14 @@ export default function ProductList() {
                             <span className="text-lg font-bold " style={{ color: '#c92127' }}>
                               {formatPrice(calculateFinalPrice(product.price, product.discount))}đ
                             </span>
+                            {product.discount > 0 && (
+                              <Badge
+                                className="px-2 py-1 text-xs text-white font-bold"
+                                style={{ backgroundColor: '#c92127', color: '#ffffff' }}
+                              >
+                                -{Math.floor(product.discount)}%
+                              </Badge>
+                            )}
                           </div>
                           <div className="text-sm text-gray-400 line-through">
                             {formatPrice(product.price)}đ
