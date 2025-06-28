@@ -155,9 +155,9 @@ export default function ProductDetail() {
 
   return (
     <div className="mx-auto max-w-7xl bg-gray-50 p-4">
-      <div className="grid grid-cols-1 gap-8 rounded-lg bg-white p-6 shadow-sm lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 rounded-lg bg-white p-6 shadow-sm lg:grid-cols-3 lg:gap-x-[30px]" >
         {/* Left Column - Images */}
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-1 ">
           {/* Main Image */}
           <div className="relative">
             <img
@@ -220,7 +220,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Right Column - Product Details */}
-        <div className="space-y-4">
+        <div className="space-y-4 col-span-2" >
           {/* Title and Badge */}
           <div className="flex items-start gap-2">
             {product.discount > 0 && <Badge className="bg-orange-500 text-white">Giảm giá</Badge>}
@@ -291,7 +291,14 @@ export default function ProductDetail() {
                   {formatPriceWithCurrency((product.price * (100 - product.discount)) / 100)}
                 </span>
                 <span className="text-gray-400 line-through">{formatPriceWithCurrency(product.price)}</span>
-                <Badge className="bg-red-600 text-white">-{product.discount}%</Badge>
+                {product.discount > 0 && (
+                  <Badge
+                    className="px-2 py-1 text-xs text-white font-bold"
+                    style={{ backgroundColor: '#c92127', color: '#ffffff' }}
+                  >
+                    -{Math.floor(product.discount)}%
+                  </Badge>
+                )}
               </>
             ) : (
               <span className="text-3xl font-bold text-gray-900">
@@ -321,59 +328,6 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Shipping Info */}
-          <div className="space-y-3 rounded-lg border p-4">
-            <h3 className="font-semibold">Thông tin vận chuyển</h3>
-            <div className="flex items-center justify-between">
-              <span className="text-gray-600">Giao hàng đến Phường Bến Nghé, Quận 1, Hồ Chí Minh</span>
-              <Button variant="link" className="p-0 text-blue-600">
-                Thay đổi
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-green-600" />
-              <div>
-                <div className="font-medium">Giao hàng tiêu chuẩn</div>
-                <div className="text-sm text-gray-600">Dự kiến giao Thứ hai - 02/06</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Promotions */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <span className="font-semibold">Ưu đãi liên quan</span>
-              <Button variant="link" className="p-0 text-blue-600">
-                Xem thêm
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="flex items-center gap-2 rounded border p-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
-                  <span className="text-xs text-orange-600">%</span>
-                </div>
-                <span className="text-xs">Mã giảm 10k - to...</span>
-              </div>
-              <div className="flex items-center gap-2 rounded border p-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100">
-                  <span className="text-xs text-orange-600">%</span>
-                </div>
-                <span className="text-xs">Mã giảm 20k - to...</span>
-              </div>
-              <div className="flex items-center gap-2 rounded border p-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                  <CreditCard className="h-4 w-4 text-blue-600" />
-                </div>
-                <span className="text-xs">Home credit: giá...</span>
-              </div>
-              <div className="flex items-center gap-2 rounded border p-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-100">
-                  <span className="text-xs text-blue-600">Z</span>
-                </div>
-                <span className="text-xs">Zalopay: giảm 15...</span>
-              </div>
-            </div>
-          </div>
 
           {/* Quantity Selector */}
           <div className="flex items-center gap-4">
@@ -388,6 +342,71 @@ export default function ProductDetail() {
               </Button>
             </div>
           </div>
+
+          {/* Book Detail Information */}
+          <div className="rounded-lg border bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold">Thông tin chi tiết</h2>
+            <div className="divide-y text-sm text-gray-700">
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Mã hàng</span>
+                <span className="text-right">8935337532110</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Độ Tuổi</span>
+                <span className="text-blue-600 cursor-pointer hover:underline">5+</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Tên Nhà Cung Cấp</span>
+                <span className="text-blue-600 cursor-pointer hover:underline">Việt Tinh Anh</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Năm XB</span>
+                <span>2025</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Thương Hiệu</span>
+                <span className="text-blue-600 cursor-pointer hover:underline">Clever Hippo</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Xuất Xứ Thương Hiệu</span>
+                <span>Việt Nam</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Nơi Gia Công & Sản Xuất</span>
+                <span>Việt Nam</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Màu sắc</span>
+                <span className="text-pink-600">Hồng</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Chất liệu</span>
+                <span>Vải</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="text-gray-500">Trọng lượng (gr)</span>
+                <span>900</span>
+              </div>
+              <div className="py-2">
+                <span className="text-gray-500">Sản phẩm bán chạy nhất</span>
+                <div>
+                  <a href="#" className="text-blue-600 hover:underline text-sm">
+                    Top 100 sản phẩm Tiểu Học - Bé Gái bán chạy của tháng
+                  </a>
+                </div>
+              </div>
+              <div className="pt-2 text-xs text-gray-500">
+                Giá sản phẩm trên Fahasa.com đã bao gồm thuế theo luật hiện hành. Bên cạnh đó, tùy vào loại sản phẩm, hình thức và địa chỉ giao hàng mà có thể phát sinh thêm chi phí khác như Phụ phí đóng gói, phí vận chuyển, phụ phí hàng cồng kềnh,...
+              </div>
+              <div className="pt-2 text-xs text-red-500">
+                Chính sách khuyến mãi trên Fahasa.com không áp dụng cho Hệ thống Nhà sách Fahasa trên toàn quốc
+              </div>
+            </div>
+          </div>
+
+
+
+
         </div>
       </div>
 
