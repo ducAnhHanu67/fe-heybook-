@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
+//test
+
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price)
 }
