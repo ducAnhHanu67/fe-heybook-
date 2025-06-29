@@ -42,7 +42,6 @@ export default function Header() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      console.log(event.target, 'ducn');
 
       if (categoryMenuRef.current && !categoryMenuRef.current.contains(event.target)) {
         setShowCategoryMenu(false);

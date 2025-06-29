@@ -16,6 +16,7 @@ import {
   PaginationPrevious
 } from '@/components/ui/pagination'
 import BannerSlider from '@/components/Banner/BannerSlider'
+import FlashSale from '@/components/FlashSale.jsx/FlashSale'
 
 function formatPrice(price) {
   return new Intl.NumberFormat('vi-VN').format(price)
@@ -233,6 +234,59 @@ export default function HomePage() {
     }
     // Add more items if needed
   ];
+  const flashSaleProducts = [
+    {
+      name: 'Làm Bạn Với Cô Nàng Dễ Thương Nhí Lớp - Tập 1 - Tặng Postcard',
+      imageUrl: 'https://cdn1.fahasa.com/media/catalog/product/l/a/lam-ban-voi-co-nang-de-thuong-nhi-lop_t_p-1_ban-pho-thong.jpg',
+      price: 52500,
+      originalPrice: 105000,
+      discount: 50,
+      badge: 'BẢN PHỔ THÔNG',
+      sold: 5,
+      soldPercent: 90,
+    },
+    {
+      name: 'Nhóc Miko! Cô Bé Nhí Nhảnh - Best Selection - Miko! Tất Tần Tật',
+      imageUrl: 'https://cdn1.fahasa.com/media/catalog/product/n/x/nxbtre_full_22512022_095142.jpg',
+      price: 22500,
+      originalPrice: 25000,
+      discount: 10,
+      badge: '',
+      sold: 3,
+      soldPercent: 60,
+    },
+    {
+      name: 'Tham Vọng - Tặng Kèm Bookmark + Túi Giấy',
+      imageUrl: 'https://cdn1.fahasa.com/media/catalog/product/z/6/z6201458591499_1f246b207b42892cb656af71738923f3.jpg',
+      price: 114000,
+      originalPrice: 159000,
+      discount: 28,
+      badge: '',
+      sold: 2,
+      soldPercent: 50,
+    },
+    {
+      name: 'Shin - Cậu Bé Bút Chì - Phiên Bản Hoạt Hình Màu - Tập 36',
+      imageUrl: 'https://cdn1.fahasa.com/media/catalog/product/s/h/shin-cau-be-but-chi_-phien-ban-hoat-hinh-mau_tap-36_tb-2023.jpg',
+      price: 45000,
+      originalPrice: 50000,
+      discount: 10,
+      badge: 'Tập 36',
+      sold: 6,
+      soldPercent: 85,
+    },
+    {
+      name: 'One-Punch Man - Tập 29 - Phát Cờ Trỗi Dậy - Tặng Kèm Bookmark',
+      imageUrl: 'https://cdn1.fahasa.com/media/catalog/product/o/n/one-punch-man_bia_bookmark_tap-29.jpg',
+      price: 22500,
+      originalPrice: 25000,
+      discount: 10,
+      badge: 'Tập 29',
+      sold: 2,
+      soldPercent: 45,
+    },
+  ]
+
 
   return (
     <div className="container mx-auto px-4 py-2">
@@ -241,6 +295,9 @@ export default function HomePage() {
       <div className="lg:col-span-3">
         {/* Loading State */}
         <BannerSlider></BannerSlider>
+
+        {/* FlashSale */}
+        <FlashSale products={flashSaleProducts} />
 
         {/* Trending */}
 
