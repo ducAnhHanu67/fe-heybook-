@@ -2,6 +2,7 @@ import { Search, Bell, User, ChevronDown, Menu, LogOut, Settings } from 'lucide-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import CartIcon from '@/components/CartIcon'
+import { getCategoriesForProductAPI, getBookGenresForProductAPI } from '@/apis'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { logoutUserAPI, selectCurrentUser } from '@/redux/userSlice'
 import { setSearchQuery, selectSearchQuery } from '@/redux/searchSlice'
 import { useNavigate, useSearchParams, Link } from 'react-router-dom'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 export default function Header() {
   const dispatch = useDispatch()
@@ -25,11 +26,32 @@ export default function Header() {
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
   const [selectedMainCategory, setSelectedMainCategory] = useState("Sách");
   const categoryMenuRef = useRef(null);
+  const [categories, setCategories] = useState([])
+  const [bookGenres, setBookGenres] = useState([])
 
-  const categoryData = {
-    "Sách": ["Truyện tranh", "Kinh tế", "Tiểu thuyết", "Kỹ năng sống"],
-    "Văn phòng phẩm": ["Bút", "Sổ tay", "Tẩy", "Thước kẻ", "Bìa hồ sơ"],
-  };
+  const categoryData = useMemo(() => ({
+    "Sách": categories.map(cat => cat.name),
+    "Văn phòng phẩm": bookGenres.map(genre => genre.name)
+  }), [categories, bookGenres])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [categoriesData, bookGenresData] = await Promise.all([
+          getCategoriesForProductAPI(),
+          getBookGenresForProductAPI()
+        ])
+        setCategories(categoriesData)
+        setBookGenres(bookGenresData)
+
+      } catch {
+        // Handle error silently for now
+        setCategories([])
+        setBookGenres([])
+      }
+    }
+    fetchData()
+  }, [])
   useEffect(() => {
     const searchFromUrl = searchParams.get('search') || ''
 
@@ -58,7 +80,7 @@ export default function Header() {
     if (inputValue.trim()) {
       const searchTerm = inputValue.trim()
       dispatch(setSearchQuery(searchTerm))
-      navigate(`/?search=${encodeURIComponent(searchTerm)}`)
+      navigate(`/product-list?search=${encodeURIComponent(searchTerm)}`)
     }
   }
   const handleSearchInputChange = (e) => {
@@ -90,6 +112,17 @@ export default function Header() {
   const handleRegister = () => {
     navigate('/register')
   }
+  const handleCategoryClick = (mainCategory, subCategory) => {
+    const type = mainCategory === 'Sách' ? 'BOOK' : 'STATIONERY'
+
+    // setSearchQuery nếu bạn vẫn muốn lưu từ khóa tìm kiếm vào Redux
+    dispatch(setSearchQuery(subCategory))
+
+    navigate(
+      `/product-list?type=${type}&bookGenreId=${encodeURIComponent(subCategory)}&page=1&itemsPerPage=12`
+    )
+  }
+
 
   return (
     <header className="border-b border-gray-200 bg-white shadow-sm">
@@ -136,6 +169,7 @@ export default function Header() {
                     <div
                       key={idx}
                       className="py-1 px-2 hover:text-red-600 cursor-pointer text-sm"
+                      onClick={() => handleCategoryClick(selectedMainCategory, idx)}
                     >
                       {sub}
                     </div>
