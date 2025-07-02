@@ -9,6 +9,7 @@ import Products from './Product/Products'
 import Users from './Users/Users'
 import Discounts from './Discounts/Discounts'
 import Orders from './Orders/Orders'
+import DashboardMain from './DashboardMain'
 
 export default function Dashboard() {
   return (
@@ -19,11 +20,11 @@ export default function Dashboard() {
         <div className="flex h-screen flex-col">
           {/* Header */}
           <HeaderDashboard />
-
           {/* Content */}
           <div className="flex w-full flex-1 flex-col bg-gray-100 p-4 md:px-4 md:py-1 md:pt-1.5">
             {/* Routes */}
             <Routes>
+              <Route path="/*" element={<DashboardMain />} />
               <Route path="/categories/*" element={<Categories />} />
               <Route path="/book-genres/*" element={<BookGenres />} />
               <Route path="/products/*" element={<Products />} />
