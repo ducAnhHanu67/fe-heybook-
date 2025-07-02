@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   getCartAPI,
@@ -25,11 +25,31 @@ const Cart = () => {
   const [showVoucherModal, setShowVoucherModal] = useState(false)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const [selectedItems, setSelectedItems] = useState([])
+
+
+
 
   // Sử dụng useAuthGuard để protect route
   useAuthGuard({
     message: 'Vui lòng đăng nhập để xem giỏ hàng!'
   })
+
+  const handleToggleSelectItem = (itemId) => {
+    setSelectedItems((prevSelected) =>
+      prevSelected.includes(itemId)
+        ? prevSelected.filter((id) => id !== itemId)
+        : [...prevSelected, itemId]
+    )
+  }
+  const handleToggleSelectAll = () => {
+    if (selectedItems.length === cart.items.length) {
+      setSelectedItems([]) // bỏ chọn tất cả
+    } else {
+      setSelectedItems(cart.items.map((item) => item.id)) // chọn tất cả
+    }
+  }
+
 
   // Fetch cart data
   const {
@@ -129,11 +149,33 @@ const Cart = () => {
     }
   }
 
+  const selectedCartItems = useMemo(() => {
+
+    if (!cart?.items) return []
+    return cart.items.filter((item) => selectedItems.includes(item.id))
+  }, [cart?.items, selectedItems])
+
+  const selectedTotalAmount = useMemo(() => {
+    return selectedCartItems.reduce((sum, item) => +sum + +item.totalPrice, 0)
+  }, [selectedCartItems])
+
+
+  const selectedDiscountAmount = useMemo(() => {
+    return cart?.discountAmount && selectedItems.length === cart?.items?.length
+      ? cart.discountAmount
+      : 0
+  }, [cart?.discountAmount, selectedItems, cart?.items?.length])
+
+  const selectedFinalAmount = useMemo(() => {
+    return selectedTotalAmount - selectedDiscountAmount
+  }, [selectedTotalAmount, selectedDiscountAmount])
+
+
   // Helper function để validate và get thông tin coupon
   const getCouponValidation = (coupon) => {
     if (!cart || !coupon) return { isValid: false, currentTotal: 0, minRequired: 0 }
 
-    const currentTotal = Number(cart.totalAmount || 0)
+    const currentTotal = selectedTotalAmount
     const minRequired = Number(coupon.minOrderAmount || 0)
 
     return {
@@ -169,11 +211,18 @@ const Cart = () => {
   }
 
   const handleCheckout = () => {
-    // Chuyển đến checkout (đã được bảo vệ bởi useAuthGuard)
-    navigate('/checkout')
+    if (selectedItems.length === 0) {
+      toast.error('Vui lòng chọn ít nhất 1 sản phẩm để đặt hàng!')
+      return
+    }
+
+    // Navigate kèm selectedItems (hoặc lưu vào localStorage/context)
+    navigate('/checkout', { state: { selectedItems } })
   }
 
+
   if (isLoading) {
+
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="animate-pulse">
@@ -218,6 +267,9 @@ const Cart = () => {
     )
   }
 
+
+
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
@@ -231,10 +283,35 @@ const Cart = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Cart Items */}
         <div className="space-y-4 lg:col-span-2">
+          <div className="flex items-center gap-2 mb-4">
+            <input
+              type="checkbox"
+              checked={selectedItems.length === cart.items.length}
+              onChange={handleToggleSelectAll}
+              className="h-[20px] w-[20px] appearance-none border border-[#545759] rounded-[4px] cursor-pointer flex items-center justify-center transition duration-100
+      checked:bg-[#C92127] checked:border-0 
+      before:content-['✓'] before:text-white before:text-sm before:leading-none checked:before:block before:hidden"
+            />
+            <span className="text-[15px] font-semibold text-[#333]">
+              Chọn tất cả ({cart.items.length} sản phẩm)
+            </span>
+          </div>
           {cart.items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedItems.includes(item.id)}
+                      onChange={() => handleToggleSelectItem(item.id)}
+                      className="h-[20px] w-[20px] appearance-none border border-[#545759] rounded-[4px] cursor-pointer flex items-center justify-center transition duration-100
+      checked:bg-[#C92127] checked:border-0 
+      before:content-['✓'] before:text-white before:text-sm before:leading-none checked:before:block before:hidden"
+                    />
+                  </div>
+
+
                   {/* Product Image */}
                   <div
                     className="h-20 w-20 flex-shrink-0 cursor-pointer rounded-lg border border-gray-300 bg-gray-200"
@@ -345,13 +422,13 @@ const Cart = () => {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span>Tạm tính:</span>
-                  <span>{formatPriceWithCurrency(cart.totalAmount)}</span>
+                  <span>{formatPriceWithCurrency(selectedTotalAmount)}</span>
                 </div>
 
-                {cart.discountAmount > 0 && (
+                {selectedDiscountAmount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Giảm giá:</span>
-                    <span>-{formatPriceWithCurrency(cart.discountAmount)}</span>
+                    <span>-{formatPriceWithCurrency(selectedDiscountAmount)}</span>
                   </div>
                 )}
 
@@ -359,7 +436,7 @@ const Cart = () => {
 
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Tổng cộng:</span>
-                  <span>{formatPriceWithCurrency(cart.finalAmount)}</span>
+                  <span>{formatPriceWithCurrency(selectedFinalAmount)}</span>
                 </div>
 
                 {/* Coupon Section */}
@@ -447,7 +524,7 @@ const Cart = () => {
           <div className="space-y-4">
             {availableCoupons?.coupons?.map((coupon) => {
               const canUse = canUseCoupon(coupon)
-              const currentTotal = Number(cart?.totalAmount || 0)
+              const currentTotal = selectedTotalAmount
               const minRequired = Number(coupon?.minOrderAmount || 0)
               const missingAmount = Math.max(0, minRequired - currentTotal)
               const isSelected = cart?.coupon?.code === coupon.code
@@ -455,13 +532,12 @@ const Cart = () => {
               return (
                 <div
                   key={coupon.id}
-                  className={`rounded-lg border p-4 transition-all ${
-                    isSelected
-                      ? 'border-green-400 bg-green-100 shadow-md ring-2 ring-green-200'
-                      : canUse
-                        ? 'cursor-pointer border-blue-200 bg-blue-50 hover:border-blue-300 hover:shadow-md'
-                        : 'cursor-not-allowed border-gray-200 bg-gray-50 opacity-60'
-                  }`}
+                  className={`rounded-lg border p-4 transition-all ${isSelected
+                    ? 'border-green-400 bg-green-100 shadow-md ring-2 ring-green-200'
+                    : canUse
+                      ? 'cursor-pointer border-blue-200 bg-blue-50 hover:border-blue-300 hover:shadow-md'
+                      : 'cursor-not-allowed border-gray-200 bg-gray-50 opacity-60'
+                    }`}
                   onClick={(e) => {
                     e.preventDefault()
                     if (isSelected) {
@@ -480,21 +556,19 @@ const Cart = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-green-500 to-emerald-500'
-                            : canUse
-                              ? 'bg-gradient-to-r from-red-500 to-pink-500'
-                              : 'bg-gray-400'
-                        }`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-full ${isSelected
+                          ? 'bg-gradient-to-r from-green-500 to-emerald-500'
+                          : canUse
+                            ? 'bg-gradient-to-r from-red-500 to-pink-500'
+                            : 'bg-gray-400'
+                          }`}
                       >
                         <Ticket className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1">
                         <h4
-                          className={`font-medium ${
-                            isSelected ? 'text-green-900' : canUse ? 'text-gray-900' : 'text-gray-500'
-                          }`}
+                          className={`font-medium ${isSelected ? 'text-green-900' : canUse ? 'text-gray-900' : 'text-gray-500'
+                            }`}
                         >
                           {coupon.code}
                           {isSelected && (
@@ -504,24 +578,21 @@ const Cart = () => {
                           )}
                         </h4>
                         <p
-                          className={`mt-1 text-sm ${
-                            isSelected ? 'text-green-700' : canUse ? 'text-gray-600' : 'text-gray-400'
-                          }`}
+                          className={`mt-1 text-sm ${isSelected ? 'text-green-700' : canUse ? 'text-gray-600' : 'text-gray-400'
+                            }`}
                         >
                           {coupon.description}
                         </p>
                         <p
-                          className={`mt-1 text-xs ${
-                            isSelected ? 'text-green-600' : canUse ? 'text-gray-500' : 'text-gray-400'
-                          }`}
+                          className={`mt-1 text-xs ${isSelected ? 'text-green-600' : canUse ? 'text-gray-500' : 'text-gray-400'
+                            }`}
                         >
                           Đơn tối thiểu: {formatPriceWithCurrency(minRequired)}
                         </p>
                         {coupon.expiresAt && (
                           <p
-                            className={`text-xs ${
-                              isSelected ? 'text-green-600' : canUse ? 'text-gray-500' : 'text-gray-400'
-                            }`}
+                            className={`text-xs ${isSelected ? 'text-green-600' : canUse ? 'text-gray-500' : 'text-gray-400'
+                              }`}
                           >
                             HSD: {new Date(coupon.expiresAt).toLocaleDateString('vi-VN')}
                           </p>
