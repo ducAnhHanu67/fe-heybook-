@@ -1,4 +1,4 @@
-import { Home, BookText, ChartBarStacked, BookCopy, Package, TicketPercent, Truck, Users } from 'lucide-react'
+import { Home, BookText, ChartBarStacked, BookCopy, Package, TicketPercent, Truck, Users, MessageSquare } from 'lucide-react'
 import {
   Sidebar,
   SidebarHeader,
@@ -59,6 +59,11 @@ const getMenuItems = (permissions) =>
       url: '/dashboard/users',
       icon: Users,
       permission: 'canManageUsers'
+    },
+    {
+      title: 'Chat hỗ trợ',
+      url: '/dashboard/livechat',
+      icon: MessageSquare
     }
   ].filter((item) => !item.permission || permissions[item.permission])
 
