@@ -94,6 +94,7 @@ export default function HomePage() {
             discount > 0 ? Math.round(price / (1 - discount / 100)) : price
 
           return {
+            id: product.id,
             title: product.name,
             price,
             originalPrice,
@@ -188,7 +189,9 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 py-4">
             {trendingProducts.map((product, idx) => (
-              <div key={idx} className="bg-white  p-2  hover:shadow-md transition">
+              <div key={idx} className="bg-white  p-2  hover:shadow-md transition"
+                onClick={() => navigate(`/product/${product.id}`)}
+              >
                 <div className="relative">
                   {product.badge && (
                     <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-1 py-0.5 rounded-sm">
