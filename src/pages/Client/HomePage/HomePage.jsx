@@ -1,6 +1,6 @@
 import { Star, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { searchAndFilterProductsAPI } from '@/apis'
+import { getTrendingProductsAPI, searchAndFilterProductsAPI } from '@/apis'
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -70,24 +70,13 @@ export default function HomePage() {
     }
   }, [searchParams, searchQuery, dispatch])
 
-  const fetchProducts = useCallback(
-    async (filterParams = {}, page = 1) => {
-      setLoading(true)
+
+
+  useEffect(() => {
+    const fetchTrendingProducts = async () => {
       try {
-        const searchFilters = {
-          ...filterParams,
-          page,
-          itemsPerPage,
-          isTrend: true,
-
-        }
-
-        if (searchQuery && searchQuery.trim()) {
-          searchFilters.search = searchQuery.trim()
-        }
-
-        const data = await searchAndFilterProductsAPI(searchFilters)
-        const mappedTrending = data.data.map((product) => {
+        const res = await getTrendingProductsAPI()
+        const mappedTrending = res.data.map((product) => {
           const price = parseFloat(product.price)
           const discount = parseFloat(product.discount)
           const originalPrice =
@@ -99,28 +88,21 @@ export default function HomePage() {
             price,
             originalPrice,
             discount,
-            sold: Math.floor(Math.random() * 200),
+            sold: product.sold || Math.floor(Math.random() * 200), // fallback nếu không có sold
             badge: discount > 0 ? 'Giảm giá' : 'Mới',
             image: product.coverImageUrl || product.productImages?.[0]?.imageUrl || ''
           }
         })
 
         setTrendingProducts(mappedTrending)
-        setProducts(data.data)
-        setProducts(data.data)
-
-      } catch {
-        setProducts({ data: [], count: 0 })
-      } finally {
-        setLoading(false)
+      } catch (error) {
+        console.error('Lỗi khi gọi API trend-products:', error)
       }
-    },
-    [searchQuery]
-  )
+    }
 
-  useEffect(() => {
-    fetchProducts(filters, currentPage)
-  }, [filters, currentPage, fetchProducts])
+    fetchTrendingProducts()
+  }, [])
+
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters)

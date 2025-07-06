@@ -54,6 +54,7 @@ const LiveChat = () => {
             socket.emit('getMessages', selectedUser.name);
 
             socket.once('messageHistory', (msgs) => {
+                console.log('🗂 Lịch sử tin nhắn:', msgs);
                 setMessages(msgs || []);
             });
         }
@@ -108,7 +109,7 @@ const LiveChat = () => {
                             {messages.map((msg, idx) => (
                                 <div
                                     key={idx}
-                                    className={`p-2 rounded w-fit max-w-[70%] ${msg.from === 'admin' ? 'ml-auto bg-blue-100 text-right' : 'mr-auto bg-gray-100'}`}
+                                    className={`p-2 rounded w-fit max-w-[70%] ${msg.sender === 'admin' ? 'ml-auto bg-blue-100 text-right' : 'mr-auto bg-gray-100'}`}
                                 >
                                     <p className="text-sm">{msg.content}</p>
                                     <p className="text-xs text-gray-500">
