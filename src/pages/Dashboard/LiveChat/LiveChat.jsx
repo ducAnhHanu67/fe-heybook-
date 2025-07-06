@@ -12,6 +12,13 @@ const LiveChat = () => {
     const [messages, setMessages] = useState([]);
     const [reply, setReply] = useState('');
     const selectedUserRef = useRef(null);
+    const bottomRef = useRef(null);
+
+    useEffect(() => {
+        if (bottomRef.current) {
+            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
 
     // 🧠 Khi admin kết nối
     useEffect(() => {
@@ -34,7 +41,7 @@ const LiveChat = () => {
     useEffect(() => {
         const handleNewMessage = (msg) => {
             const selected = selectedUserRef.current;
-            if (msg?.from === selected?.name || msg?.to === selected?.name) {
+            if (msg?.from === selected?.name) {
 
                 setMessages((prev) => [...prev, msg]);
             }
@@ -72,7 +79,7 @@ const LiveChat = () => {
         };
 
         socket.emit('sendMessage', message);
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => [...prev, { ...message, sender: message.from }]);
         setReply('');
     };
 
@@ -116,7 +123,9 @@ const LiveChat = () => {
                                         {new Date(msg.timestamp).toLocaleTimeString()}
                                     </p>
                                 </div>
+
                             ))}
+                            <div ref={bottomRef} />
                         </CardContent>
 
                         <div className="flex items-center gap-2 border-t p-4">
@@ -124,6 +133,12 @@ const LiveChat = () => {
                                 placeholder="Nhập phản hồi..."
                                 value={reply}
                                 onChange={(e) => setReply(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        sendReply();
+                                    }
+                                }}
                             />
                             <Button onClick={sendReply}>Gửi</Button>
                         </div>
