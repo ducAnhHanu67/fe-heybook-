@@ -155,16 +155,16 @@ export default function ProductDetail() {
 
   return (
     <div className="mx-auto max-w-7xl bg-gray-50 p-4">
-      <div className="grid grid-cols-1 gap-8 rounded-lg bg-white p-6 shadow-sm lg:grid-cols-3 lg:gap-x-[30px]" >
-        {/* Left Column - Images */}
-        <div className="space-y-4 col-span-1 ">
+      <div className="grid grid-cols-1 gap-8 rounded-lg bg-white p-6 shadow-sm lg:grid-cols-20 lg:gap-x-[20px]" >
+        {/*  Column 1 - Images */}
+        <div className="space-y-4 col-span-6 ">
           {/* Main Image */}
           <div className="relative">
             <img
               src={product.coverImageUrl || '/book-cover.png'}
               alt={product.name}
               width={400}
-              height={600}
+              height={700}
               className="w-full rounded-lg shadow-lg"
             />
             {/* Discount Badge */}
@@ -199,56 +199,14 @@ export default function ProductDetail() {
 
 
         </div>
-
-        {/* Right Column - Product Details */}
-        <div className="space-y-4 col-span-2" >
+        {/* Column 2 - Product Details */}
+        <div className="space-y-4 col-span-9" >
           {/* Title and Badge */}
           <div className="flex items-start gap-2">
             {product.discount > 0 && <Badge className="bg-orange-500 text-white">Giảm giá</Badge>}
             <h1 className="text-2xl font-bold text-gray-900">{product.name}</h1>
           </div>
 
-          {/* Product Info */}
-          {/* <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600">Danh mục:</span>
-              <span className="ml-2">{product.category?.name || 'Chưa phân loại'}</span>
-            </div>
-            {product.bookDetail && (
-              <>
-                <div>
-                  <span className="text-gray-600">Tác giả:</span>
-                  <span className="ml-2">{product.bookDetail.author}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Nhà xuất bản:</span>
-                  <span className="ml-2">{product.bookDetail.publisher}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Ngôn ngữ:</span>
-                  <span className="ml-2">{product.bookDetail.language}</span>
-                </div>
-              </>
-            )}
-            {product.stationeryDetail && (
-              <>
-                <div>
-                  <span className="text-gray-600">Thương hiệu:</span>
-                  <span className="ml-2">{product.stationeryDetail.brand}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Nơi sản xuất:</span>
-                  <span className="ml-2">{product.stationeryDetail.placeProduction}</span>
-                </div>
-                {product.stationeryDetail.color && (
-                  <div>
-                    <span className="text-gray-600">Màu sắc:</span>
-                    <span className="ml-2">{product.stationeryDetail.color}</span>
-                  </div>
-                )}
-              </>
-            )}
-          </div> */}
 
           {/* Rating and Sales */}
           <div className="flex items-center gap-4">
@@ -293,13 +251,22 @@ export default function ProductDetail() {
             {product.stock > 0 ? `Còn ${product.stock} sản phẩm` : 'Hết hàng'}
           </div>
 
-          {/* Product Description */}
-          {product.description && (
+          {/* Product Highlights */}
+          {product.highlights?.length > 0 && (
             <div className="space-y-2">
-              <h3 className="font-semibold">Mô tả sản phẩm</h3>
-              <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
+              <h3 className="font-semibold">Đặc điểm nổi bật</h3>
+              <ul className="text-[14px] font-light text-[#555] leading-relaxed">
+                {product.highlights.map((h) => (
+                  <li key={h.id} className="flex items-start">
+                    <span className="mr-2">-</span>
+                    <span>{h.key}: {h.value}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
+
+
 
           {/* Product Dimensions */}
           {product.dimension && (
@@ -343,116 +310,109 @@ export default function ProductDetail() {
               Mua ngay
             </Button>
           </div>
+        </div>
 
-          {/* Book Detail Information */}
+        {/* Column 3 - Commitments */}
+        <div className="space-y-4 col-span-5">
           <div className="rounded-lg border bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold">Thông tin chi tiết</h2>
-            {product.bookDetail && (
-              <>
-                <div className="divide-y text-sm text-gray-700">
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Tác giả</span>
-                    <span className="text-right">{product.bookDetail.author}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Ngôn ngữ</span>
-                    <span className="text-blue-600 cursor-pointer hover:underline">{product.bookDetail.language}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Số Trang</span>
-                    <span className="text-blue-600 cursor-pointer hover:underline">{product.bookDetail.pageCount}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Năm XB</span>
-                    <span>{product.bookDetail.publishYear}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Nhà xuất bản</span>
-                    <span className="text-blue-600 cursor-pointer hover:underline">{product.bookDetail.publisher}</span>
-                  </div>
-
-
-                </div>
-              </>
-            )}
-            {product.stationeryDetail && (
-              <>
-                <div className="divide-y text-sm text-gray-700">
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Thương hiệu</span>
-                    <span className="text-right">{product.stationeryDetail.brand}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Nơi sản xuất:</span>
-                    <span className="text-blue-600 cursor-pointer hover:underline">{product.stationeryDetail.placeProduction}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="text-gray-500">Màu sắc:</span>
-                    <span className="text-blue-600 cursor-pointer hover:underline">{product.stationeryDetail.color}</span>
-                  </div>
-
-
-
-                </div>
-              </>
-            )}
-
-
+            <h2 className="mb-4 text-lg font-semibold">Roboticworld cam kết:</h2>
+            <ul className="space-y-3 text-sm text-gray-700">
+              {[
+                'Chỉ bán hàng mới chính hãng, full Vat',
+                'Đổi mới 15-30 ngày miễn phí',
+                'Bảo trì, bảo dưỡng trọn đời',
+                'Nói không với hàng giả, hàng nhái',
+                'Hoàn tiền 200% nếu phát hiện hàng giả, hàng nhái',
+                'Freeship toàn quốc',
+                'Bảo hành tại nhà'
+              ].map((text, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-4 w-4 text-red-600 flex-shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M5 3a2 2 0 0 0-2 2v16l9-4 9 4V5a2 2 0 0 0-2-2H5z" />
+                  </svg>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
-
-
-
-
         </div>
       </div>
 
-      {/* Reviews Section */}
+      {/* Parameter Section */}
       <div className="mx-auto mt-8 max-w-7xl bg-gray-50 p-4">
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Left Column - Rating Stats */}
-          <div className="lg:col-span-1">
-            <RatingStats productId={id} />
+        <div className="grid gap-8 lg:grid-cols-10">
+          {/* Left Column  */}
+          <div className="lg:col-span-6">
 
-            {/* Write Review Button */}
-            {currentUser && !userReview && !showReviewForm && (
-              <div className="mt-4">
-                <Button onClick={handleWriteReview} className="w-full">
-                  Viết đánh giá
-                </Button>
-              </div>
-            )}
-
-            {/* Edit Review Button */}
-            {currentUser && userReview && !showReviewForm && (
-              <div className="mt-4">
-                <Button onClick={() => setShowReviewForm(true)} className="w-full">
-                  Chỉnh sửa đánh giá
-                </Button>
-              </div>
-            )}
           </div>
 
-          {/* Right Column - Reviews List or Form */}
-          <div className="lg:col-span-2">
-            {showReviewForm ? (
-              <ReviewForm
-                productId={id}
-                existingReview={userReview}
-                onSuccess={handleReviewSuccess}
-                onCancel={() => setShowReviewForm(false)}
-              />
-            ) : (
-              <div>
-                <h3 className="mb-4 text-xl font-semibold">Đánh giá sản phẩm ({totalReviews})</h3>
-                <ReviewList
-                  productId={id}
-                  onReviewsUpdate={handleReviewsUpdate}
-                  onUserReviewDeleted={handleUserReviewDeleted}
-                  currentUserId={currentUser?.id}
-                />
+          {/* Right Column  */}
+          <div className="lg:col-span-4">
+            <div className="rounded-lg border bg-white shadow-sm overflow-hidden">
+              {/* Header */}
+              <h2 className="bg-gray-100 px-4 py-3 text-base font-semibold border-b text-center">
+                Thông số kỹ thuật
+              </h2>
+
+              {/* Table */}
+              <table className="w-full text-sm text-gray-700">
+                <tbody>
+                  <tr className="border-b">
+                    <td className="w-1/3 px-4 py-2 text-gray-500">Hãng sản xuất</td>
+                    <td className="px-4 py-2">Ecovacs</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Tên sản phẩm</td>
+                    <td className="px-4 py-2 font-medium text-blue-600">
+                      Deebot X9 Pro omni
+                    </td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Lực hút</td>
+                    <td className="px-4 py-2">16.600 Pa</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Dung lượng pin</td>
+                    <td className="px-4 py-2">6.400 mAh</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Thời gian sạc</td>
+                    <td className="px-4 py-2">3h</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Sạc nhanh</td>
+                    <td className="px-4 py-2">Có</td>
+                  </tr>
+                  <tr className="border-b">
+                    <td className="px-4 py-2 text-gray-500">Độ ồn</td>
+                    <td className="px-4 py-2">64 dB</td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-2 text-gray-500 align-top">Thời gian hoạt động</td>
+                    <td className="px-4 py-2 space-y-1">
+                      <p>- Thời gian làm việc trên sàn cứng - chế độ im lặng (quét): 252 phút</p>
+                      <p>- Thời gian làm việc trên sàn cứng - chế độ tiêu chuẩn (quét): 196 phút</p>
+                      <p>- Thời gian làm việc trên sàn …</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Nút xem thêm */}
+              <div className="border-t bg-white">
+                <button className="w-full py-2 text-center text-sm font-medium text-yellow-600 hover:text-yellow-700">
+                  Xem thêm
+                </button>
               </div>
-            )}
+            </div>
           </div>
+
+
         </div>
       </div>
     </div>
