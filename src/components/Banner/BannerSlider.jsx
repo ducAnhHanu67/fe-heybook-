@@ -1,5 +1,4 @@
-// src/components/BannerSlider.jsx
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -8,47 +7,63 @@ import 'swiper/css/pagination';
 
 import './BannerSlider.css';
 
+const slides = [
+    { image: '/anh bia 1.jpeg', alt: 'banner1', title: 'CHUYÊN GIA LỌC NƯỚC' },
+    { image: '/anh bia 2.jpeg', alt: 'banner2', title: 'ROBOT VÀ THIẾT BỊ' },
+    { image: '/anh bia 3.jpeg', alt: 'banner3', title: 'GIA DỤNG VÀ NHÀ BẾP' }
+];
+
 const BannerSlider = () => {
+    const swiperRef = useRef(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const goToSlide = (index) => {
+        if (swiperRef.current) {
+            swiperRef.current.slideToLoop(index);
+        }
+    };
+
     return (
-        <div className="slider-wrapper">
-            <div className="left-slider" style={{ height: '315px', overflow: 'hidden' }}>
+        <div className="slider-wrapper h-[315px] flex flex-col">
+            {/* phần slider chiếm 100% - 50px */}
+            <div className="flex-1 h-[90%] w-[80%]">
                 <Swiper
                     modules={[Navigation, Pagination, Autoplay]}
-                    navigation
-                    pagination={{ clickable: true }}
                     autoplay={{ delay: 3000 }}
                     loop={true}
-                    style={{ height: '100%' }}
+                    className="h-full"
+                    onSwiper={(swiper) => (swiperRef.current = swiper)}
+                    onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
                 >
-                    <SwiperSlide>
-                        <img
-                            src="/banner1.webp"
-                            alt="banner1"
-                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-                        />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <img
-                            src="/banner2.webp"
-                            alt="banner2"
-                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-                        />
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <img
-                            src="/banner3.webp"
-                            alt="banner3"
-                            style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-                        />
-                    </SwiperSlide>
+                    {slides.map((slide, index) => (
+                        <SwiperSlide key={index}>
+                            <img
+                                src={slide.image}
+                                alt={slide.alt}
+                                className="w-full h-full object-cover"
+                            />
+                        </SwiperSlide>
+                    ))}
                 </Swiper>
             </div>
-            <div className="right-banners">
-                <img src="/small1.webp" alt="small1" />
-                <img src="/small2.webp" alt="small2" />
+
+            {/* phần chữ cao 50px */}
+            <div className="slider-text-menu h-[50px] w-[80%] flex items-center justify-center gap-6 bg-white" >
+                {slides.map((slide, index) => (
+                    <span
+                        key={index}
+                        className={`menu-item cursor-pointer ${activeIndex === index ? 'active font-bold text-blue-600' : ''
+                            }`}
+                        onClick={() => goToSlide(index)}
+                    >
+                        {slide.title}
+                    </span>
+                ))}
             </div>
         </div>
     );
 };
+
+
 
 export default BannerSlider;

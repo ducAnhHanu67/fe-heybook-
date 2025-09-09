@@ -358,3 +358,14 @@ export const getTrendingProductsAPI = async () => {
   const response = await axios.get(`${API_ROOT}/v1/products/trend-products`)
   return response.data
 }
+export const getFlashSaleProductsAPI = async () => {
+  const response = await axios.get(`${API_ROOT}/v1/products/flash-sales`)
+  return response.data
+}
+
+export const getProductsByCategoryAPI = async (categoryId, limit = 5) => {
+  const response = await axios.get(`${API_ROOT}/v1/products/category`, {
+    params: { categoryId, limit }
+  })
+  return response.data
+}

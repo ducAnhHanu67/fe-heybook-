@@ -26,6 +26,16 @@ export const BookGenreSchema = Joi.object({
     'string.max': 'Tên thể loại phải ít hơn hoặc bằng 50 ký tự!'
   })
 })
+const highlightItemSchema = Joi.object({
+  key: Joi.string().trim().min(1).max(100).required().messages({
+    'string.empty': 'Vui lòng nhập tiêu đề highlight!',
+    'string.min': 'Tiêu đề highlight phải nhiều hơn 1 ký tự!',
+    'string.max': 'Tiêu đề highlight phải ít hơn hoặc bằng 100 ký tự!'
+  }),
+  value: Joi.string().trim().max(255).allow('').messages({
+    'string.max': 'Mô tả highlight phải ít hơn hoặc bằng 255 ký tự!'
+  })
+})
 
 // Product
 export const productSchema = Joi.object({
@@ -152,5 +162,12 @@ export const productSchema = Joi.object({
       })
     }).required(),
     otherwise: Joi.forbidden()
-  })
+  }),
+  flashSale: Joi.object({
+    flashPrice: Joi.number().allow(null, ''),
+    startTime: Joi.date().iso().allow(null, ''),
+    endTime: Joi.date().iso().allow(null, '')
+  }).optional(),
+
+  highlights: Joi.array().items(highlightItemSchema).optional(),
 })

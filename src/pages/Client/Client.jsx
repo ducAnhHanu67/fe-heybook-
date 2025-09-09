@@ -14,19 +14,21 @@ function Client() {
   return (
     <>
       <Header />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/product-list" element={<ProductList />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/thank-you" element={<ThankYou />} />
-          <Route path="/vnpay-return" element={<VNPayReturn />} />
-          <Route path="/profile/*" element={<Profile />} />
-        </Routes>
+      <div className='bg-[#f3f3f3]'>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/product-list" element={<ProductList />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/thank-you" element={<ThankYou />} />
+            <Route path="/vnpay-return" element={<VNPayReturn />} />
+            <Route path="/profile/*" element={<Profile />} />
+          </Routes>
+        </div>
       </div>
-      <ChatWidget />
+
     </>
   )
 }
