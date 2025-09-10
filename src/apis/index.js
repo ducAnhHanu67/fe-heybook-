@@ -369,3 +369,11 @@ export const getProductsByCategoryAPI = async (categoryId, limit = 5) => {
   })
   return response.data
 }
+export const getProductSuggestAPI = async (keyword) => {
+  if (!keyword || keyword.trim() === "") return []
+
+  const res = await axios.get(`${API_ROOT}/v1/products/suggest`, {
+    params: { keyword }
+  })
+  return res.data?.data || []
+}

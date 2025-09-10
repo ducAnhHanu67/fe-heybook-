@@ -108,7 +108,7 @@ export default function HomePage() {
 
   useEffect(() => {
     const fetchRobotProducts = async () => {
-      const res = await getProductsByCategoryAPI(1, 5)
+      const res = await getProductsByCategoryAPI(1, 10)
 
       setRobotProducts(res.data.map(p => ({
         id: p.id,

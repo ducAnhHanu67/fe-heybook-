@@ -1,4 +1,8 @@
 import { useNavigate } from 'react-router-dom'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay } from 'swiper/modules'
+
+import 'swiper/css'
 
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price)
@@ -25,7 +29,7 @@ export default function ProductSection({ title, brands = [], products = [], view
                 {brands.map((b) => (
                     <button
                         key={b.value}
-                        onClick={() => navigate(`/brand/${b.value}`)} // điều hướng sang trang brand
+                        onClick={() => navigate(`/brand/${b.value}`)}
                         className="px-3 py-1 border rounded-full text-sm hover:bg-gray-200"
                     >
                         {b.label}
@@ -34,24 +38,56 @@ export default function ProductSection({ title, brands = [], products = [], view
             </div>
 
             {/* Product list */}
-            <div className="grid grid-cols-5 gap-4">
-                {products.map((p) => (
-                    <div
-                        key={p.id}
-                        onClick={() => navigate(`/product/${p.id}`)}
-                        className="bg-white rounded-lg shadow hover:shadow-lg transition p-3 flex flex-col"
-                    >
-                        <img src={p.image} alt={p.title} className="h-40 object-contain mb-2" />
-                        <h3 className="text-sm font-medium line-clamp-2 mb-1">{p.title}</h3>
-                        <p className="text-red-600 font-bold">{formatPrice(p.price)} VNĐ</p>
-                        {p.originalPrice && (
-                            <p className="text-xs line-through text-gray-500">
-                                {formatPrice(p.originalPrice)} VNĐ
-                            </p>
-                        )}
-                    </div>
-                ))}
-            </div>
+            {products.length > 5 ? (
+                <Swiper
+                    modules={[Autoplay]}
+                    spaceBetween={16}
+                    slidesPerView={5}
+                    loop={true} // vòng lặp vô hạn
+                    autoplay={{
+                        delay: 2500, // 2.5 giây đổi slide
+                        disableOnInteraction: false, // vẫn chạy sau khi user hover/click
+                    }}
+                    className="pb-6"
+                >
+                    {products.map((p) => (
+                        <SwiperSlide key={p.id}>
+                            <div
+                                onClick={() => navigate(`/product/${p.id}`)}
+                                className="bg-white rounded-lg shadow hover:shadow-lg transition p-3 flex flex-col cursor-pointer"
+                            >
+                                <img src={p.image} alt={p.title} className="h-40 object-contain mb-2" />
+                                <h3 className="text-sm font-medium line-clamp-2 mb-1">{p.title}</h3>
+                                <p className="text-red-600 font-bold">{formatPrice(p.price)} VNĐ</p>
+                                {p.originalPrice && (
+                                    <p className="text-xs line-through text-gray-500">
+                                        {formatPrice(p.originalPrice)} VNĐ
+                                    </p>
+                                )}
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            ) : (
+                <div className="grid grid-cols-5 gap-4">
+                    {products.map((p) => (
+                        <div
+                            key={p.id}
+                            onClick={() => navigate(`/product/${p.id}`)}
+                            className="bg-white rounded-lg shadow hover:shadow-lg transition p-3 flex flex-col cursor-pointer"
+                        >
+                            <img src={p.image} alt={p.title} className="h-40 object-contain mb-2" />
+                            <h3 className="text-sm font-medium line-clamp-2 mb-1">{p.title}</h3>
+                            <p className="text-red-600 font-bold">{formatPrice(p.price)} VNĐ</p>
+                            {p.originalPrice && (
+                                <p className="text-xs line-through text-gray-500">
+                                    {formatPrice(p.originalPrice)} VNĐ
+                                </p>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     )
 }

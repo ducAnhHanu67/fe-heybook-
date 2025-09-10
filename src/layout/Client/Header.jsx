@@ -2,7 +2,7 @@ import { Search, Bell, User, ChevronDown, Menu, LogOut, Settings, ShoppingCart }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import CartIcon from '@/components/CartIcon'
-import { getCategoriesForProductAPI, getBookGenresForProductAPI, getCartAPI } from '@/apis'
+import { getCategoriesForProductAPI, getBookGenresForProductAPI, getCartAPI, getProductSuggestAPI } from '@/apis'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { logoutUserAPI, selectCurrentUser } from '@/redux/userSlice'
@@ -23,6 +23,7 @@ export default function Header() {
   const categoryMenuRef = useRef(null);
   const [categories, setCategories] = useState([])
   const [bookGenres, setBookGenres] = useState([])
+  const [suggests, setSuggests] = useState([])
 
   // const categoryData = useMemo(() => ({
   //   "Sách": bookGenres.map(genre => genre.name),
@@ -37,6 +38,29 @@ export default function Header() {
   })
 
   const cartCount = cart?.items?.length || 0
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (inputValue.trim().length > 1) {
+        try {
+          const res = await getProductSuggestAPI(inputValue)
+          setSuggests(res)
+        } catch {
+          setSuggests([])
+        }
+      } else {
+        setSuggests([])
+      }
+    }, 400)
+
+    return () => clearTimeout(delayDebounce)
+  }, [inputValue])
+
+  const handleSelectSuggest = (item) => {
+    setInputValue(item.name)
+    setSuggests([])
+    navigate(`/product/${item.id}`) // hoặc navigate tới danh sách nếu bạn muốn
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,7 +183,40 @@ export default function Header() {
               >
                 <Search className="h-4 w-4 text-black" />
               </Button>
+
+              {/* Suggest list */}
+              {suggests.length > 0 && (
+                <ul className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-200 rounded shadow-md z-50">
+                  {suggests.map((item) => (
+                    <li
+                      key={item.id}
+                      className="flex items-center gap-3 px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => handleSelectSuggest(item)}
+                    >
+                      {/* Ảnh */}
+                      <img
+                        src={item.coverImageUrl || "/placeholder.png"}
+                        alt={item.name}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+
+                      {/* Tên + Giá */}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-gray-800">{item.name}</span>
+                        <span className="text-sm font-semibold text-red-500">
+                          {new Intl.NumberFormat("vi-VN", {
+                            style: "currency",
+                            currency: "VND",
+                          }).format(item.price)}
+                        </span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
             </form>
+
           </div>
           <div className="flex items-center space-x-2">
             <svg
