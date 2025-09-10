@@ -2,14 +2,8 @@ import { Search, Bell, User, ChevronDown, Menu, LogOut, Settings, ShoppingCart }
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import CartIcon from '@/components/CartIcon'
-import { getCategoriesForProductAPI, getBookGenresForProductAPI } from '@/apis'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { getCategoriesForProductAPI, getBookGenresForProductAPI, getCartAPI } from '@/apis'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDispatch, useSelector } from 'react-redux'
 import { logoutUserAPI, selectCurrentUser } from '@/redux/userSlice'
 import { setSearchQuery, selectSearchQuery } from '@/redux/searchSlice'
@@ -35,6 +29,14 @@ export default function Header() {
   //   "Văn phòng phẩm": categories.map(cat => cat.name)
 
   // }), [categories, bookGenres])
+
+  const { data: cart } = useQuery({
+    queryKey: ['cart'],
+    queryFn: getCartAPI,
+    retry: 1
+  })
+
+  const cartCount = cart?.items?.length || 0
 
   useEffect(() => {
     const fetchData = async () => {
@@ -181,7 +183,7 @@ export default function Header() {
               <ShoppingCart className="h-5 w-5 text-[#ffc82c]" />
               <span className="text-white text-sm font-medium">giỏ hàng</span>
               <span className="bg-[#ffc82c] text-black text-sm font-bold px-2 py-0.5 rounded">
-                0
+                {cartCount}
               </span>
             </Link>
           </div>

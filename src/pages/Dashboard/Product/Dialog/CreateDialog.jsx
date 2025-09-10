@@ -22,6 +22,8 @@ import { toast } from 'react-toastify'
 import { X } from 'lucide-react'
 import { createProductAPI } from '@/apis'
 import { Textarea } from '@/components/ui/textarea'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import { CKEditor } from '@ckeditor/ckeditor5-react'
 
 export default function CreateDialog({ categories, bookGenres }) {
   const [coverFile, setCoverFile] = useState(null)
@@ -411,14 +413,6 @@ export default function CreateDialog({ categories, bookGenres }) {
               <Input className="z-1 h-10 w-full bg-white" id="stock" type="text" {...register('stock')} />
               <FieldAlertError errors={errors} fieldName="stock" />
             </div>
-            {/* description */}
-            <div className="flex w-full flex-col gap-1">
-              <Label className="mb-1 gap-0 pl-[3px]">
-                Mô tả<span className="text-red-500">*</span>
-              </Label>
-              <Textarea className="z-1 h-30 bg-white" {...register('description')} />
-              <FieldAlertError errors={errors} fieldName="description" />
-            </div>
             {/* Ảnh */}
             <div className="flex flex-col gap-1">
               <Label htmlFor="coverImageUrl" className="gap-0 pl-[3px]">
@@ -510,6 +504,28 @@ export default function CreateDialog({ categories, bookGenres }) {
                 <FieldAlertError errors={errors} fieldName="flashSale.endTime" />
               </div>
             </div>
+            {/* description */}
+            <div className="flex w-full flex-col gap-1">
+              <Label className="mb-1 gap-0 pl-[3px]">
+                Mô tả<span className="text-red-500">*</span>
+              </Label>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <CKEditor
+                    editor={ClassicEditor}
+                    data={field.value || ''}
+                    onChange={(event, editor) => {
+                      const data = editor.getData()
+                      field.onChange(data) // cập nhật vào form
+                    }}
+                  />
+                )}
+              />
+              <FieldAlertError errors={errors} fieldName="description" />
+            </div>
+
 
 
             {/* Đặc điểm nổi bật */}

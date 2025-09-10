@@ -30,6 +30,7 @@ export default function ProductDetail() {
   const [userReview, setUserReview] = useState(null)
   const [showReviewForm, setShowReviewForm] = useState(false)
   const [totalReviews, setTotalReviews] = useState(0)
+  const [expanded, setExpanded] = useState(false)
 
   const currentUser = useSelector(selectCurrentUser)
 
@@ -267,16 +268,6 @@ export default function ProductDetail() {
           )}
 
 
-
-          {/* Product Dimensions */}
-          {product.dimension && (
-            <div className="text-sm">
-              <span className="font-medium text-gray-700">Kích thước: </span>
-              <span className="text-gray-600">{product.dimension}</span>
-            </div>
-          )}
-
-
           {/* Quantity Selector */}
           <div className="flex items-center gap-4">
             <span className="font-medium">Số lượng:</span>
@@ -347,8 +338,25 @@ export default function ProductDetail() {
       <div className="mx-auto mt-8 max-w-7xl bg-gray-50 p-4">
         <div className="grid gap-8 lg:grid-cols-10">
           {/* Left Column  */}
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-6 relative">
+            <div
+              className={`prose max-w-none transition-all duration-300 overflow-hidden ${expanded ? 'max-h-none' : 'max-h-[600px]'
+                }`}
+              dangerouslySetInnerHTML={{ __html: product.description }}
+            />
+            {!expanded && (
+              <div className="pointer-events-none absolute bottom-10 left-0 h-24 w-full bg-gradient-to-t from-white to-transparent" />
+            )}
 
+            <div className="mt-3 text-center">
+              <button
+                type="button"
+                onClick={() => setExpanded(!expanded)}
+                className="w-[115px] text-[14px] text-[#ffc82c] border border-[#ffc82c] rounded-[5px] leading-[38px] transition-all duration-300 hover:bg-[#ffc82c] hover:text-white"
+              >
+                {expanded ? 'Thu gọn ▲' : 'Xem thêm ▼'}
+              </button>
+            </div>
           </div>
 
           {/* Right Column  */}

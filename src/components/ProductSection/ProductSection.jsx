@@ -38,6 +38,7 @@ export default function ProductSection({ title, brands = [], products = [], view
                 {products.map((p) => (
                     <div
                         key={p.id}
+                        onClick={() => navigate(`/product/${p.id}`)}
                         className="bg-white rounded-lg shadow hover:shadow-lg transition p-3 flex flex-col"
                     >
                         <img src={p.image} alt={p.title} className="h-40 object-contain mb-2" />

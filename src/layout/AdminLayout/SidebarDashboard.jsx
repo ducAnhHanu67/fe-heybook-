@@ -86,7 +86,7 @@ export default function SidebarDashboard() {
           <BookText className={isCollapsed ? 'size-4' : 'size-5'} />
         </div>
         <div className={cn('grid text-left text-sm leading-tight', isCollapsed && 'hidden')}>
-          <button className="truncate text-xl font-semibold">HeyBook</button>
+          <button className="truncate text-xl font-semibold">RoboticWorld</button>
           <span className="truncate text-xs">Trang quản lý</span>
         </div>
       </SidebarHeader>

@@ -1,4 +1,5 @@
 import { defineConfig } from 'tailwindcss'
+import lineClamp from '@tailwindcss/line-clamp'
 
 export default defineConfig({
   darkMode: 'class', // Kích hoạt chế độ dark mode sử dụng class "dark"
@@ -34,5 +35,5 @@ export default defineConfig({
       }
     }
   },
-  plugins: []
+  plugins: [lineClamp]
 })
