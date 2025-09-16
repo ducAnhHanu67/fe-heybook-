@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:3000'); // ⚠️ Đổi khi deploy
+// const socket = io('http://localhost:3000'); // ⚠️ Đổi khi deploy
 
 const LiveChat = () => {
     const [users, setUsers] = useState([]);
@@ -14,74 +14,74 @@ const LiveChat = () => {
     const selectedUserRef = useRef(null);
     const bottomRef = useRef(null);
 
-    useEffect(() => {
-        if (bottomRef.current) {
-            bottomRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [messages]);
+    // useEffect(() => {
+    //     if (bottomRef.current) {
+    //         bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    //     }
+    // }, [messages]);
 
-    // 🧠 Khi admin kết nối
-    useEffect(() => {
-        socket.emit('adminConnect');
+    // // 🧠 Khi admin kết nối
+    // useEffect(() => {
+    //     socket.emit('adminConnect');
 
-        socket.on('userList', (userList) => {
-            setUsers(userList);
-        });
+    //     socket.on('userList', (userList) => {
+    //         setUsers(userList);
+    //     });
 
-        return () => {
-            socket.off('userList');
-        };
-    }, []);
+    //     return () => {
+    //         socket.off('userList');
+    //     };
+    // }, []);
 
-    useEffect(() => {
-        selectedUserRef.current = selectedUser;
-    }, [selectedUser]);
+    // useEffect(() => {
+    //     selectedUserRef.current = selectedUser;
+    // }, [selectedUser]);
 
-    // 📩 Nhận tin nhắn mới
-    useEffect(() => {
-        const handleNewMessage = (msg) => {
-            const selected = selectedUserRef.current;
-            if (msg?.from === selected?.name) {
+    // // 📩 Nhận tin nhắn mới
+    // useEffect(() => {
+    //     const handleNewMessage = (msg) => {
+    //         const selected = selectedUserRef.current;
+    //         if (msg?.from === selected?.name) {
 
-                setMessages((prev) => [...prev, msg]);
-            }
-        };
+    //             setMessages((prev) => [...prev, msg]);
+    //         }
+    //     };
 
-        socket.on('newMessage', handleNewMessage);
+    //     socket.on('newMessage', handleNewMessage);
 
-        return () => {
-            socket.off('newMessage', handleNewMessage);
-        };
-    }, []);
+    //     return () => {
+    //         socket.off('newMessage', handleNewMessage);
+    //     };
+    // }, []);
 
-    // 🔄 Khi chọn user, lấy lịch sử
-    useEffect(() => {
-        if (selectedUser?.name) {
-            socket.emit('joinConversation', selectedUser.name);
-            socket.emit('getMessages', selectedUser.name);
+    // // 🔄 Khi chọn user, lấy lịch sử
+    // useEffect(() => {
+    //     if (selectedUser?.name) {
+    //         socket.emit('joinConversation', selectedUser.name);
+    //         socket.emit('getMessages', selectedUser.name);
 
-            socket.once('messageHistory', (msgs) => {
-                console.log('🗂 Lịch sử tin nhắn:', msgs);
-                setMessages(msgs || []);
-            });
-        }
-    }, [selectedUser]);
+    //         socket.once('messageHistory', (msgs) => {
+    //             console.log('🗂 Lịch sử tin nhắn:', msgs);
+    //             setMessages(msgs || []);
+    //         });
+    //     }
+    // }, [selectedUser]);
 
-    // 📤 Gửi tin nhắn admin
-    const sendReply = () => {
-        if (!reply.trim() || !selectedUser?.name) return;
+    // // 📤 Gửi tin nhắn admin
+    // const sendReply = () => {
+    //     if (!reply.trim() || !selectedUser?.name) return;
 
-        const message = {
-            from: 'admin',
-            to: selectedUser.name,
-            content: reply.trim(),
-            timestamp: new Date().toISOString()
-        };
+    //     const message = {
+    //         from: 'admin',
+    //         to: selectedUser.name,
+    //         content: reply.trim(),
+    //         timestamp: new Date().toISOString()
+    //     };
 
-        socket.emit('sendMessage', message);
-        setMessages((prev) => [...prev, { ...message, sender: message.from }]);
-        setReply('');
-    };
+    //     socket.emit('sendMessage', message);
+    //     setMessages((prev) => [...prev, { ...message, sender: message.from }]);
+    //     setReply('');
+    // };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">

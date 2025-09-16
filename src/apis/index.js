@@ -377,3 +377,22 @@ export const getProductSuggestAPI = async (keyword) => {
   })
   return res.data?.data || []
 }
+
+export const getBrandsAPI = async ({ page = 1, limit = 10, search = '' }) => {
+  const response = await axios.get(`${API_ROOT}/v1/brands`, {
+    params: { page, limit, search }
+  })
+  return response.data
+}
+export const createBrandAPI = async (payload) => {
+  const res = await axios.post(`${API_ROOT}/v1/brands`, payload)
+  return res.data
+}
+export const updateBrandAPI = async (id, payload) => {
+  const res = await axios.put(`${API_ROOT}/v1/brands/${id}`, payload)
+  return res.data
+}
+export const deleteBrandAPI = async (id) => {
+  const res = await axios.delete(`${API_ROOT}/v1/brands/${id}`)
+  return res.data
+}

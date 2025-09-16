@@ -37,6 +37,17 @@ const highlightItemSchema = Joi.object({
   })
 })
 
+export const BrandSchema = Joi.object({
+  categoryId: Joi.number().required().messages({
+    'any.required': 'Vui lòng chọn danh mục!'
+  }),
+  name: Joi.string().required().min(3).max(50).trim().messages({
+    'string.empty': 'Vui lòng nhập tên hãng!',
+    'string.min': 'Tên hãng phải nhiều hơn 3 ký tự!',
+    'string.max': 'Tên hãng phải ít hơn hoặc bằng 50 ký tự!'
+  })
+})
+
 // Product
 export const productSchema = Joi.object({
   categoryId: Joi.number().integer().required().messages({

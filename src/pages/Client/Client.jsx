@@ -8,7 +8,6 @@ import Checkout from './Checkout/Checkout'
 import ThankYou from './ThankYou/ThankYou'
 import VNPayReturn from './VNPayReturn'
 import HomePage from './HomePage/HomePage'
-import ChatWidget from '@/components/ChatWidget'
 
 function Client() {
   return (

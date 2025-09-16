@@ -37,6 +37,12 @@ const getMenuItems = (permissions) =>
       permission: 'canManageBookGenres'
     },
     {
+      title: 'Quản lý hãng',
+      url: '/dashboard/brands',
+      icon: BookCopy,
+      permission: 'canManageBookGenres'
+    },
+    {
       title: 'Quản lý sản phẩm',
       url: '/dashboard/products',
       icon: Package,
