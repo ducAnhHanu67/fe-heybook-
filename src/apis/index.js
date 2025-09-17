@@ -396,3 +396,9 @@ export const deleteBrandAPI = async (id) => {
   const res = await axios.delete(`${API_ROOT}/v1/brands/${id}`)
   return res.data
 }
+export const getBrandsByCategoryAPI = async (categoryId) => {
+  const res = axios.get(`${API_ROOT}/v1/brands/category/${categoryId}`)
+  return res
+}
+
+

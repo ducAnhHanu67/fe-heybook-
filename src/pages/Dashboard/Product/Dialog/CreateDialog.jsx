@@ -20,14 +20,16 @@ import { productSchema } from '@/utils/validatiors'
 import FieldAlertError from '@/components/Form/FieldAlertError'
 import { toast } from 'react-toastify'
 import { X } from 'lucide-react'
-import { createProductAPI } from '@/apis'
+import { createProductAPI, getBrandsByCategoryAPI } from '@/apis'
 import { Textarea } from '@/components/ui/textarea'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
 
-export default function CreateDialog({ categories, bookGenres }) {
+export default function CreateDialog({ categories, fetchData }) {
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreviewUrl, setCoverPreviewUrl] = useState('')
+  const [brands, setBrands] = useState([])
+  const [open, setOpen] = useState(false)
 
   const {
     register,
@@ -49,17 +51,14 @@ export default function CreateDialog({ categories, bookGenres }) {
     name: 'highlights'
   })
 
-  const type = watch('type')
+  const handleSelectCategory = async (val) => {
+    try {
+      const res = await getBrandsByCategoryAPI(Number(val))
+      setBrands(res.data || [])
 
-  const handleSelectCategory = (val) => {
-    const categoryBookId = categories?.find(
-      (cat) => cat.name.normalize('NFD').toLowerCase() === 'sách'.normalize('NFD').toLowerCase()
-    )?.id
-    const selectedCategory = categories.find((cat) => cat.id === Number(val))
-    if (selectedCategory?.id === categoryBookId) {
-      setValue('type', 'BOOK')
-    } else {
-      setValue('type', 'STATIONERY')
+    } catch (err) {
+      console.error(err)
+      setBrands([])
     }
   }
 
@@ -76,16 +75,13 @@ export default function CreateDialog({ categories, bookGenres }) {
   }
 
   const createProduct = async (data) => {
-    // Tách riêng FormData và các phần text/object
     console.log(data, 'da su huynh');
 
     const formData = new FormData()
-    const { bookDetail, stationeryDetail, ...rest } = data
+    const { ...rest } = data
 
     const payload = {
       ...rest,
-      ...(data.type === 'BOOK' ? { bookDetail } : {}),
-      ...(data.type === 'STATIONERY' ? { stationeryDetail } : {}),
       highlights: data.highlights?.reduce((acc, item) => {
         if (item.key && item.value) {
           acc[item.key] = item.value
@@ -125,6 +121,8 @@ export default function CreateDialog({ categories, bookGenres }) {
         pending: 'Đang tạo sản phẩm…'
       })
       toast.success('Thêm sản phẩm thành công!')
+      if (fetchData) fetchData()
+      setOpen(false)
     } catch (err) {
       toast.error(err?.response?.data?.message || err.message)
     }
@@ -137,11 +135,12 @@ export default function CreateDialog({ categories, bookGenres }) {
   const onInvalid = (errors) => {
     console.log('❌ onInvalid, errors:', errors)
     // In ra toàn bộ data hiện tại của form
-    console.log('📌 current form data:', getValues())
+    console.log(Object.keys(getValues()))
+
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="ml-auto gap-1 pl-10">
           <Plus />
@@ -201,185 +200,40 @@ export default function CreateDialog({ categories, bookGenres }) {
                 )}
               />
               <FieldAlertError errors={errors} fieldName="categoryId" />
-              <Input type="hidden" {...register('type')} />
             </div>
 
-            {/* bookDetail */}
-            {type === 'BOOK' && (
+            {brands.length > 0 && (
               <>
+                {/* brand */}
                 <div className="flex w-[250px] flex-col gap-1.5">
+
                   <Label className="gap-0 pl-[3px]">
-                    Thể loại sách<span className="text-red-500">*</span>
+                    Hãng<span className="text-red-500">*</span>
                   </Label>
                   <Controller
-                    name="bookDetail.bookGenreId"
+                    name="brandId"
                     control={control}
                     render={({ field }) => (
                       <Select
                         value={String(field.value || '')}
-                        onValueChange={(val) => field.onChange(Number(val))}
+                        onValueChange={(val) => {
+                          field.onChange(Number(val))
+                        }}
                       >
                         <SelectTrigger className="z-1 mb-[-3px] w-[250px] bg-white">
-                          <SelectValue placeholder="Chọn thể loại" />
+                          <SelectValue placeholder="Chọn hãng" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[250px]">
-                          {bookGenres.map((genre) => (
-                            <SelectItem key={genre.id} value={String(genre.id)}>
-                              {genre.name}
+                          {brands?.map((brand) => (
+                            <SelectItem key={brand.id} value={String(brand.id)}>
+                              {brand.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     )}
                   />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.bookGenreId" />
-                </div>
-
-                {/* author */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="author">
-                    Tác giả<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="author"
-                    type="text"
-                    {...register('bookDetail.author')}
-                    placeholder="VD: Nguyễn Văn A"
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.author" />
-                </div>
-
-                {/* translator */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 pl-[3px] font-medium italic" htmlFor="translator">
-                    Người dịch (Nếu có)
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="translator"
-                    type="text"
-                    {...register('bookDetail.translator')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.translator" />
-                </div>
-
-                {/* language */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="language">
-                    Ngôn ngữ<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="language"
-                    type="text"
-                    {...register('bookDetail.language')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.language" />
-                </div>
-
-                {/* publisher */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="publisher">
-                    Nhà xuất bản<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="publisher"
-                    type="text"
-                    {...register('bookDetail.publisher')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.publisher" />
-                </div>
-
-                {/* publishYear */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] font-medium italic" htmlFor="publishYear">
-                    Năm xuất bản<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="publishYear"
-                    type="text"
-                    {...register('bookDetail.publishYear')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.publishYear" />
-                </div>
-
-                {/* pageCount */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="pageCount">
-                    Số trang<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="pageCount"
-                    type="text"
-                    {...register('bookDetail.pageCount')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="bookDetail.pageCount" />
-                </div>
-              </>
-            )}
-
-            {type === 'STATIONERY' && (
-              <>
-                {/* brand */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="brand">
-                    Thương hiệu<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="brand"
-                    type="text"
-                    {...register('stationeryDetail.brand')}
-                    placeholder="VD: Nguyễn Văn A"
-                  />
-                  <FieldAlertError errors={errors} fieldName="stationeryDetail.brand" />
-                </div>
-
-                {/* placeProduction */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="placeProduction">
-                    Nơi sản xuất<span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="placeProduction"
-                    type="text"
-                    {...register('stationeryDetail.placeProduction')}
-                    placeholder="VD: Nguyễn Văn A"
-                  />
-                  <FieldAlertError errors={errors} fieldName="stationeryDetail.placeProduction" />
-                </div>
-
-                {/* color */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="color">
-                    Màu sắc (Nếu có)
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="color"
-                    type="text"
-                    {...register('stationeryDetail.color')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="stationeryDetail.color" />
-                </div>
-
-                {/* material */}
-                <div className="flex w-full flex-col gap-1">
-                  <Label className="mb-1 gap-0 pl-[3px] italic" htmlFor="material">
-                    Chất liệu (Nếu có)
-                  </Label>
-                  <Input
-                    className="z-1 h-10 w-full bg-white"
-                    id="material"
-                    type="text"
-                    {...register('stationeryDetail.material')}
-                  />
-                  <FieldAlertError errors={errors} fieldName="stationeryDetail.material" />
+                  <FieldAlertError errors={errors} fieldName="brandId" />
                 </div>
               </>
             )}
@@ -579,6 +433,6 @@ export default function CreateDialog({ categories, bookGenres }) {
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   )
 }

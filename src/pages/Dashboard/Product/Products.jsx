@@ -61,7 +61,7 @@ export default function Products() {
   }
 
   const fetchDataAfterCreateOrUpdate = () => {
-    if (currentPage !== '1') {
+    if (currentPage !== 1) {
       navigate(`${location.pathname}?page=1`)
     } else {
       fetchProducts()

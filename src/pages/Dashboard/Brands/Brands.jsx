@@ -40,13 +40,7 @@ export default function Brands() {
       search
     })
 
-    const newBrands = data && data.data ? { data: data.data, count: data.count } : { data: [], count: 0 }
-    console.log(newBrands, 'hehe - new state')
     setBrands(data && data.data ? { data: data.data, count: data.count } : { data: [], count: 0 })
-
-    console.log(brands, 'heheh');
-
-
     setLoading(false)
   }
 
@@ -70,7 +64,7 @@ export default function Brands() {
   }
 
   const fetchDataAfterCreateOrUpdate = () => {
-    if (currentPage !== '1') {
+    if (currentPage !== 1) {
       navigate(`${location.pathname}?page=1`)
     } else {
       fetchBrands()
@@ -142,7 +136,7 @@ export default function Brands() {
                         <TableCell>{item.name}</TableCell>
                         <TableCell>{item.categoryName}</TableCell>
                         <TableCell><ReadDialog brand={item} /></TableCell>
-                        <TableCell><UpdateDialog brand={item} fetchData={fetchDataAfterCreateOrUpdate} /></TableCell>
+                        <TableCell><UpdateDialog brand={item} fetchData={fetchDataAfterCreateOrUpdate} categories={categories} /></TableCell>
                         <TableCell><DeleteDialog brandId={item.id} fetchData={fetchDataAfterDelete} /></TableCell>
                       </TableRow>
                     ))

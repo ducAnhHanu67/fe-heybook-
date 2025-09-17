@@ -19,7 +19,7 @@ import { updateBrandAPI } from '@/apis'
 import { toast } from 'react-toastify'
 import { Pencil } from 'lucide-react'
 
-export default function UpdateDialog({ brand, fetchData }) {
+export default function UpdateDialog({ brand, fetchData, categories }) {
   const [open, setOpen] = useState(false)
   const {
     register,
@@ -27,16 +27,21 @@ export default function UpdateDialog({ brand, fetchData }) {
     reset,
     formState: { errors }
   } = useForm({
-    resolver: joiResolver(BrandSchema)
+    resolver: joiResolver(BrandSchema),
+    defaultValues: {
+      name: brand.name,
+      categoryId: brand.categoryId
+    }
+
   })
 
   const updateBrand = (data) => {
-    const { name } = data
-    updateBrandAPI(brand.id, { name })
+    const { name, categoryId } = data
+    updateBrandAPI(brand.id, { name, categoryId })
       .then((res) => {
         if (!res.error) {
           toast.success('Sửa thông tin brand thành công!')
-          fetchData()
+          fetchData?.()
           reset()
           setOpen(false)
         }
@@ -48,8 +53,11 @@ export default function UpdateDialog({ brand, fetchData }) {
 
   const handleOpenChange = (isOpen) => {
     setOpen(isOpen)
-    if (!isOpen) {
-      reset({ name: brand.name })
+    if (isOpen) {
+      reset({
+        name: brand.name,
+        categoryId: brand.categoryId
+      })
     }
   }
 
@@ -68,6 +76,25 @@ export default function UpdateDialog({ brand, fetchData }) {
 
         <form onSubmit={handleSubmit(updateBrand)}>
           <div className="flex w-full flex-col gap-3 py-3">
+            {/* Chọn Category */}
+            <div className="flex w-full flex-col gap-1">
+              <Label className="mb-1 pl-[3px] font-medium" htmlFor="categoryId">
+                Chọn danh mục
+              </Label>
+              <select
+                id="categoryId"
+                className="h-10 w-full rounded-md border border-gray-300 bg-white px-3"
+                {...register('categoryId', { required: true })}
+              >
+                <option value="">-- Chọn danh mục --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              <FieldAlertError errors={errors} fieldName={'categoryId'} />
+            </div>
             <div className="flex w-full flex-col gap-1">
               <Label className="mb-1 pl-[3px] font-medium" htmlFor="name">
                 Tên brand

@@ -31,12 +31,6 @@ const getMenuItems = (permissions) =>
       permission: 'canManageCategories'
     },
     {
-      title: 'Quản lý thể loại sách',
-      url: '/dashboard/book-genres',
-      icon: BookCopy,
-      permission: 'canManageBookGenres'
-    },
-    {
       title: 'Quản lý hãng',
       url: '/dashboard/brands',
       icon: BookCopy,
