@@ -1,41 +1,30 @@
 import { Star, Search } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { getTrendingProductsAPI, searchAndFilterProductsAPI, getFlashSaleProductsAPI, getProductsByCategoryAPI } from '@/apis'
+import { getTrendingProductsAPI, searchAndFilterProductsAPI, getFlashSaleProductsAPI, getProductsByCategoryAPI, getBrandsByCategoryAPI } from '@/apis'
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { setSearchQuery, clearSearchQuery, selectSearchQuery } from '@/redux/searchSlice'
-import ProductFilter from '@/components/ProductFilter/ProductFilter'
-import AddToCartButton from '@/components/AddToCartButton'
+import { selectSearchQuery } from '@/redux/searchSlice'
 import BannerSlider from '@/components/Banner/BannerSlider'
 import FlashSale from '@/components/FlashSale.jsx/FlashSale'
 import SideBarMenu from '@/components/SideBarMenu/SideBarMenu'
 import ProductSection from '@/components/ProductSection/ProductSection'
 
-function formatPrice(price) {
-  return new Intl.NumberFormat('vi-VN').format(price)
-}
-
-function StarRating({ rating }) {
-  return (
-    <div className="flex items-center gap-1">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={`h-3 w-3 ${star <= rating ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`}
-        />
-      ))}
-    </div>
-  )
-}
 
 export default function HomePage() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
   const searchQuery = useSelector(selectSearchQuery)
-  const [robotProducts, setRobotProducts] = useState([])
-  const [handheldProducts, setHandheldProducts] = useState([])
+  const [categoryProducts, setCategoryProducts] = useState({})
+  const [categoryBrands, setCategoryBrands] = useState({})
+  const [flashProducts, setFlashProducts] = useState([])
+
+  const categories = [
+    { id: 1, title: "ROBOT HÚT BỤI" },
+    { id: 2, title: "MÁY HÚT BỤI CẦM TAY" },
+    { id: 3, title: "ROBOT LAU KÍNH (WINBOT)" },
+    { id: 4, title: "THIẾT BỊ GIA DỤNG" },
+    { id: 5, title: "TIVI, ÂM THANH" },
+    { id: 6, title: "THIẾT BỊ SỨC KHỎE" },
+    { id: 7, title: "PHỤ KIỆN" }
+  ]
 
   const robotBrands = [
     { label: 'Hãng Ecovacs', value: 'ecovacs' },
@@ -52,30 +41,6 @@ export default function HomePage() {
     { label: 'Hãng Xiaomi', value: 'xiaomi' }
   ]
 
-  // Demo: products từ API hoặc mock
-  const demoRobotProducts = [
-    {
-      id: 1,
-      title: 'Robot hút bụi lau nhà Deebot X8 Pro omni',
-      price: 20490000,
-      originalPrice: 25000000,
-      image: '/images/robot1.jpg'
-    }
-  ]
-
-  const demoHandheldProducts = [
-    {
-      id: 1,
-      title: 'Máy lau nhà cầm tay Tineco S9 Artist Steam',
-      price: 16590000,
-      originalPrice: 20000000,
-      image: '/images/tineco.jpg'
-    }
-  ]
-
-  const [flashProducts, setFlashProducts] = useState([])
-
-  // Gọi API flash-sale khi load trang
   useEffect(() => {
     const fetchFlashSale = async () => {
       try {
@@ -90,11 +55,11 @@ export default function HomePage() {
           return {
             id: product.id,
             title: product.name,
-            price: parseFloat(item.flashPrice), // giá flashSale
+            price: parseFloat(item.flashPrice),
             originalPrice,
             discount,
             image: product.coverImageUrl || product.productImages?.[0]?.imageUrl || '',
-            sold: Math.floor(Math.random() * 200) // giả lập số sold, bạn có thể sửa theo BE
+            sold: Math.floor(Math.random() * 200)
           }
         })
         setFlashProducts(mapped)
@@ -107,35 +72,45 @@ export default function HomePage() {
   }, [])
 
   useEffect(() => {
-    const fetchRobotProducts = async () => {
-      const res = await getProductsByCategoryAPI(1, 10)
-
-      setRobotProducts(res.data.map(p => ({
-        id: p.id,
-        title: p.name,
-        price: parseFloat(p.price),
-        originalPrice: p.discount > 0 ? p.price / (1 - p.discount / 100) : p.price,
-        image: p.coverImageUrl || p.productImages?.[0]?.imageUrl || ''
-      })))
-      console.log(robotProducts, 'hehe');
-
+    const fetchAllCategories = async () => {
+      const results = {}
+      for (const cat of categories) {
+        try {
+          const res = await getProductsByCategoryAPI(cat.id, 10)
+          results[cat.id] = res.data.map((p) => ({
+            label: p.id,
+            title: p.name,
+            price: parseFloat(p.price),
+            originalPrice: p.discount > 0 ? p.price / (1 - p.discount / 100) : p.price,
+            image: p.coverImageUrl || p.productImages?.[0]?.imageUrl || ''
+          }))
+        } catch (err) {
+          results[cat.id] = []
+        }
+      }
+      setCategoryProducts(results)
     }
-    fetchRobotProducts()
+    fetchAllCategories()
   }, [])
-
-  // Máy hút bụi cầm tay
   useEffect(() => {
-    const fetchHandheldProducts = async () => {
-      const res = await getProductsByCategoryAPI(2, 5) // categoryId=2 => Handheld
-      setHandheldProducts(res.data.map(p => ({
-        id: p.id,
-        title: p.name,
-        price: parseFloat(p.price),
-        originalPrice: p.discount > 0 ? p.price / (1 - p.discount / 100) : p.price,
-        image: p.coverImageUrl || p.productImages?.[0]?.imageUrl || ''
-      })))
+    const fetchAllBrands = async () => {
+      const results = {}
+      for (const cat of categories) {
+        try {
+          const res = await getBrandsByCategoryAPI(cat.id)
+          results[cat.id] = res.data.map((p) => ({
+            label: p.name,
+            value: p.id,
+          }))
+          console.log(results, 'ress');
+
+        } catch (err) {
+          results[cat.id] = []
+        }
+      }
+      setCategoryBrands(results)
     }
-    fetchHandheldProducts()
+    fetchAllBrands()
   }, [])
   return (
     <div className="container mx-auto px-4 py-2">
@@ -149,21 +124,19 @@ export default function HomePage() {
       </div>
       <FlashSale products={flashProducts} />
       <div className="container mx-auto px-4 py-2">
-        {/* Section Robot hút bụi */}
-        <ProductSection
-          title="ROBOT HÚT BỤI"
-          brands={robotBrands}
-          products={robotProducts}
-          viewAllLink="/category/robot"
-        />
-
-        {/* Section Máy hút bụi cầm tay */}
-        <ProductSection
-          title="MÁY HÚT BỤI CẦM TAY"
-          brands={handheldBrands}
-          products={handheldProducts}
-          viewAllLink="/category/handheld"
-        />
+        {categories.map((cat) => (
+          <ProductSection
+            key={cat.id}
+            title={cat.title}
+            products={categoryProducts[cat.id] || []}
+            viewAllLink={`/category/${cat.id}`}
+            brands={
+              categoryBrands[cat.id] && categoryBrands[cat.id].length > 0
+                ? categoryBrands[cat.id]
+                : [{ label: "Hãng khác", value: "other" }]
+            }
+          />
+        ))}
       </div>
 
     </div>

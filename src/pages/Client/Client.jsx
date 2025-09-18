@@ -8,6 +8,7 @@ import Checkout from './Checkout/Checkout'
 import ThankYou from './ThankYou/ThankYou'
 import VNPayReturn from './VNPayReturn'
 import HomePage from './HomePage/HomePage'
+import Footer from '@/layout/Client/Footer'
 
 function Client() {
   return (
@@ -27,7 +28,7 @@ function Client() {
           </Routes>
         </div>
       </div>
-
+      <Footer />
     </>
   )
 }
