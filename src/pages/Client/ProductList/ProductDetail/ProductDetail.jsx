@@ -370,44 +370,12 @@ export default function ProductDetail() {
               {/* Table */}
               <table className="w-full text-sm text-gray-700">
                 <tbody>
-                  <tr className="border-b">
-                    <td className="w-1/3 px-4 py-2 text-gray-500">Hãng sản xuất</td>
-                    <td className="px-4 py-2">Ecovacs</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Tên sản phẩm</td>
-                    <td className="px-4 py-2 font-medium text-blue-600">
-                      Deebot X9 Pro omni
-                    </td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Lực hút</td>
-                    <td className="px-4 py-2">16.600 Pa</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Dung lượng pin</td>
-                    <td className="px-4 py-2">6.400 mAh</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Thời gian sạc</td>
-                    <td className="px-4 py-2">3h</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Sạc nhanh</td>
-                    <td className="px-4 py-2">Có</td>
-                  </tr>
-                  <tr className="border-b">
-                    <td className="px-4 py-2 text-gray-500">Độ ồn</td>
-                    <td className="px-4 py-2">64 dB</td>
-                  </tr>
-                  <tr>
-                    <td className="px-4 py-2 text-gray-500 align-top">Thời gian hoạt động</td>
-                    <td className="px-4 py-2 space-y-1">
-                      <p>- Thời gian làm việc trên sàn cứng - chế độ im lặng (quét): 252 phút</p>
-                      <p>- Thời gian làm việc trên sàn cứng - chế độ tiêu chuẩn (quét): 196 phút</p>
-                      <p>- Thời gian làm việc trên sàn …</p>
-                    </td>
-                  </tr>
+                  {product.highlights?.map((item) => (
+                    <tr key={item.id} className="border-b">
+                      <td className="w-1/3 px-4 py-2 text-gray-500">{item.key}</td>
+                      <td className="px-4 py-2 font-medium">{item.value}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
 
