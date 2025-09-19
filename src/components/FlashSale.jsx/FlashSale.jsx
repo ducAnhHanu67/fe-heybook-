@@ -40,16 +40,18 @@ export default function FlashDeal({ products = [] }) {
                         key={product.id}
                         className="border rounded-md p-2 flex flex-col items-center text-center"
                     >
-                        <img
-                            src={product.image}
-                            alt={product.title}
-                            className="h-40 object-contain mb-2"
-                        />
-                        <p
-                            className="font-medium text-[#222] text-[14px] h-6 leading-5 overflow-hidden block"
-                        >
-                            {product.title}
-                        </p>
+                        <Link to={`/product/${product.id}`} className="w-full flex flex-col items-center">
+                            <img
+                                src={product.image}
+                                alt={product.title}
+                                className="h-40 object-contain mb-2"
+                            />
+                            <p
+                                className="font-medium text-[#222] text-[14px] h-6 leading-5 overflow-hidden block"
+                            >
+                                {product.title}
+                            </p>
+                        </Link>
                         <p className="font-bold text-[#de1818] text-[16px] mr-[5px]">
                             {formatPrice(product.price)} VNĐ
                         </p>

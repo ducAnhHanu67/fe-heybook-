@@ -10,10 +10,10 @@ export const PASSWORD_CONFIRMATION_MESSAGE = 'Mật khẩu không trùng khơ
 
 // Categories
 export const categorySchema = Joi.object({
-  name: Joi.string().required().min(3).max(50).trim().messages({
+  name: Joi.string().required().min(3).max(150).trim().messages({
     // 'any.required': 'Tên danh mục là bắt buộc',
     'string.empty': 'Vui lòng nhập tên danh mục!',
-    'string.max': 'Tên danh mục phải ít hơn hoặc bằng 50 ký tự!',
+    'string.max': 'Tên danh mục phải ít hơn hoặc bằng 150 ký tự!',
     'string.min': 'Tên danh mục phải nhiều hơn 3 ký tự!'
   })
 })

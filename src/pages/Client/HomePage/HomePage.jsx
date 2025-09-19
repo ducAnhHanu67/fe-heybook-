@@ -78,6 +78,7 @@ export default function HomePage() {
         try {
           const res = await getProductsByCategoryAPI(cat.id, 10)
           results[cat.id] = res.data.map((p) => ({
+            id: p.id,
             label: p.id,
             title: p.name,
             price: parseFloat(p.price),
