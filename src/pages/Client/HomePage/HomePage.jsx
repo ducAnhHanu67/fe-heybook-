@@ -59,7 +59,8 @@ export default function HomePage() {
             originalPrice,
             discount,
             image: product.coverImageUrl || product.productImages?.[0]?.imageUrl || '',
-            sold: Math.floor(Math.random() * 200)
+            sold: Math.floor(Math.random() * 200),
+            endTime: item.endTime
           }
         })
         setFlashProducts(mapped)
@@ -103,8 +104,6 @@ export default function HomePage() {
             label: p.name,
             value: p.id,
           }))
-          console.log(results, 'ress');
-
         } catch (err) {
           results[cat.id] = []
         }

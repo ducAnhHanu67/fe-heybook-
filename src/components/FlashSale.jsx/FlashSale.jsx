@@ -4,24 +4,58 @@ import { Link } from 'react-router-dom'
 function formatPrice(price) {
     return new Intl.NumberFormat('vi-VN').format(price)
 }
+function CountdownTimer({ endTime }) {
+    const calculateTimeLeft = () => {
+        const diff = new Date(endTime).getTime() - new Date().getTime()
+        return diff > 0 ? Math.floor(diff / 1000) : 0
+    }
 
-export default function FlashDeal({ products = [] }) {
-    const [timeLeft, setTimeLeft] = useState(8 * 24 * 60 * 60) // giả định còn 8 ngày
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft)
 
-    // Đếm ngược
     useEffect(() => {
         const timer = setInterval(() => {
-            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0))
+            setTimeLeft(calculateTimeLeft())
         }, 1000)
         return () => clearInterval(timer)
-    }, [])
+    }, [endTime])
 
-    // Tách ra ngày - giờ - phút - giây
     const days = Math.floor(timeLeft / (24 * 3600))
     const hours = Math.floor((timeLeft % (24 * 3600)) / 3600)
     const minutes = Math.floor((timeLeft % 3600) / 60)
     const seconds = timeLeft % 60
 
+    return (
+        <div className="flex items-center space-x-2 mt-2">
+            <span className="text-xs mr-2">Thời gian còn lại:</span>
+            <div className="flex items-center space-x-2">
+                <div className="flex flex-col items-center">
+                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">{days}</b>
+                    <span className="text-[11px]">Ngày</span>
+                </div>
+                <div className="flex flex-col items-center">
+                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
+                        {hours.toString().padStart(2, '0')}
+                    </b>
+                    <span className="text-[11px]">Giờ</span>
+                </div>
+                <div className="flex flex-col items-center">
+                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
+                        {minutes.toString().padStart(2, '0')}
+                    </b>
+                    <span className="text-[11px]">Phút</span>
+                </div>
+                <div className="flex flex-col items-center">
+                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
+                        {seconds.toString().padStart(2, '0')}
+                    </b>
+                    <span className="text-[11px]">Giây</span>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default function FlashDeal({ products = [] }) {
     return (
         <div className="relative border-[2px] border-dashed border-[#de1818] p-4 my-4 mt-12">
             <div className="absolute left-1/2 -translate-x-1/2 -top-6 flex flex-col items-center">
@@ -76,37 +110,7 @@ export default function FlashDeal({ products = [] }) {
                             </span>
                         </div>
 
-
-                        <div className="flex items-center space-x-2 mt-2">
-                            <span className="text-xs mr-2">Thời gian còn lại:</span>
-
-                            <div className="flex items-center space-x-2">
-                                <div className="flex flex-col items-center">
-                                    <b className="bg-black text-white rounded px-2 py-1 text-[10px] ">
-                                        {days}
-                                    </b>
-                                    <span className="text-[11px]">Ngày</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
-                                        {hours.toString().padStart(2, '0')}
-                                    </b>
-                                    <span className="text-[11px]">Giờ</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
-                                        {minutes.toString().padStart(2, '0')}
-                                    </b>
-                                    <span className="text-[11px]">Phút</span>
-                                </div>
-                                <div className="flex flex-col items-center">
-                                    <b className="bg-black text-white rounded px-2 py-1 text-[10px]">
-                                        {seconds.toString().padStart(2, '0')}
-                                    </b>
-                                    <span className="text-[11px]">Giây</span>
-                                </div>
-                            </div>
-                        </div>
+                        <CountdownTimer endTime={product.endTime} />
 
 
                     </div>
