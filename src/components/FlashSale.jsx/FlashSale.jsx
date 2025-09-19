@@ -55,14 +55,28 @@ export default function FlashDeal({ products = [] }) {
                         <p className="font-bold text-[#de1818] text-[16px] mr-[5px]">
                             {formatPrice(product.price)} VNĐ
                         </p>
-                        <div className="w-full bg-gray-200 h-3 rounded-full my-1">
+                        <div className="w-full bg-gray-200 rounded-full my-1 relative h-[15px]">
                             <div
-                                className="bg-orange-500 h-3 rounded-full text-xs text-white flex items-center justify-center"
-                                style={{ width: `${Math.min(product.sold, 100)}%` }}
+                                className="h-[15px] rounded-full"
+                                style={{
+                                    width: `${Math.min(product.sold, 100)}%`,
+                                    background: 'linear-gradient(270deg, #fe7801 50%, #fe4d01 67.91%)',
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    bottom: 0,
+                                    maxWidth: '100%',
+                                }}
+                            ></div>
+                            <span
+                                className="absolute inset-0 flex items-center justify-center"
+                                style={{ color: '#222', fontSize: '10px', fontWeight: 700 }}
                             >
                                 Đã bán {product.sold}
-                            </div>
+                            </span>
                         </div>
+
+
                         <div className="flex items-center space-x-2 mt-2">
                             <span className="text-xs mr-2">Thời gian còn lại:</span>
 
